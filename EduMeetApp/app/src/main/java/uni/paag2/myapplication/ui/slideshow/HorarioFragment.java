@@ -1,0 +1,37 @@
+package uni.paag2.myapplication.ui.slideshow;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import uni.paag2.myapplication.databinding.FragmentSlideshowBinding;
+
+public class HorarioFragment extends Fragment {
+
+    private FragmentSlideshowBinding binding;
+
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        HorarioViewModel horarioViewModel =
+                new ViewModelProvider(this).get(HorarioViewModel.class);
+
+        binding = FragmentSlideshowBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+
+        final TextView textView = binding.textSlideshow;
+        horarioViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+}
