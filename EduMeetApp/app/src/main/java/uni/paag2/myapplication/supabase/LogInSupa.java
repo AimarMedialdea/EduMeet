@@ -47,7 +47,7 @@ public class LogInSupa extends AppCompatActivity {
             return;
         }
 
-        supabaseHelper.loginUser(email, password, new SupabaseHelper.SupabaseCallback() {
+        supabaseHelper.loginUser(email, password, LogInSupa.this, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
                 runOnUiThread(() -> {

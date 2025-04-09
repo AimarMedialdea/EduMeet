@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/horario_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Spinner
+        android:id="@+id/spinner_asignaturas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:prompt="@string/select_asignatura" />
+
+    <Spinner
+        android:id="@+id/spinner_dia"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_hora_inicio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar Hora Inicio" />
+
+    <Button
+        android:id="@+id/btn_hora_fin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar Hora Fin" />
+
+    <Button
+        android:id="@+id/btn_guardar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Guardar Horario" />
+
+    <TextView
+        android:id="@+id/titulo_horario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mi Horario"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:paddingTop="16dp" />
+
+    <LinearLayout
+        android:id="@+id/lista_horario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

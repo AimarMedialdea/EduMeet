@@ -8,17 +8,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
-import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import uni.paag2.myapplication.databinding.ActivityMainBinding;
-import uni.paag2.myapplication.ui.gallery.ReunionDialogFragment;
+import uni.paag2.myapplication.ui.reunion.ReunionDialogFragment;
 
 public class MainActivity extends AppCompatActivity {
 

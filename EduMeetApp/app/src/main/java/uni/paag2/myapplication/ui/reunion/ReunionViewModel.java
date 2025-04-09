@@ -1,16 +1,16 @@
-package uni.paag2.myapplication.ui.slideshow;
+package uni.paag2.myapplication.ui.reunion;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class HorarioViewModel extends ViewModel {
+public class ReunionViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public HorarioViewModel() {
+    public ReunionViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is slideshow fragment");
+        mText.setValue("This is gallery fragment");
     }
 
     public LiveData<String> getText() {

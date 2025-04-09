@@ -1,5 +1,8 @@
 package uni.paag2.myapplication.supabase;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -241,8 +244,8 @@ public class SupabaseHelper {
     }
 
     // Login verificando en la tabla profesor
-    public void loginUser(String email, String password, SupabaseCallback callback) {
-        String url = BASE_URL + "profesor" + "?email=eq." + email;
+    public void loginUser(String email, String password, Context context, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor?email=eq." + email;
 
         Request request = new Request.Builder()
                 .url(url)
@@ -269,6 +272,13 @@ public class SupabaseHelper {
                             String storedPassword = user.getString("contrasena");
 
                             if (storedPassword.equals(password)) {
+                                // ✅ Guardamos el ID del profesor
+                                int idProfesor = user.getInt("id_profesor");
+                                SharedPreferences prefs = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = prefs.edit();
+                                editor.putInt("id_profesor", idProfesor);
+                                editor.apply();
+
                                 callback.onSuccess("Login exitoso");
                             } else {
                                 callback.onFailure("Contraseña incorrecta");
@@ -286,7 +296,8 @@ public class SupabaseHelper {
         });
     }
 
-    public void registerUser(String nombre, String email, String password, SupabaseCallback callback) {
+
+    public void registerUser(String nombre, String email, String password, int idDepartamento, SupabaseCallback callback) {
         String url = BASE_URL + "profesor";
 
         JSONObject json = new JSONObject();
@@ -294,6 +305,7 @@ public class SupabaseHelper {
             json.put("nombre", nombre);
             json.put("email", email);
             json.put("contrasena", password);
+            json.put("id_departamento", idDepartamento);
         } catch (Exception e) {
             callback.onFailure("Error al crear JSON");
             return;
@@ -324,6 +336,114 @@ public class SupabaseHelper {
             }
         });
     }
+
+
+    public void obtenerDepartamentos(SupabaseCallback callback) {
+        String url = BASE_URL + "departamento?select=id_departamento,nombre";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().string());
+                } else {
+                    callback.onFailure("Error al obtener departamentos");
+                }
+            }
+        });
+    }
+
+    public void obtenerAsignaturas(SupabaseCallback callback) {
+        String url = BASE_URL + "asignatura?select=id_asignatura,nombre";
+        getRequest(url, callback);
+    }
+
+    public void insertarHorario(int idProfesor, int idAsignatura, String horaInicio, String horaFin, String dia, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor_asignatura";
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id_profesor", idProfesor);
+            json.put("id_asignatura", idAsignatura);
+            json.put("hora_inicio", horaInicio);
+            json.put("hora_fin", horaFin);
+            json.put("dia", dia);
+        } catch (Exception e) {
+            callback.onFailure("Error creando JSON");
+            return;
+        }
+
+        RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onSuccess("Horario insertado");
+                } else {
+                    callback.onFailure("Error: " + response.message());
+                }
+            }
+        });
+    }
+
+    public void obtenerHorarioProfesor(int idProfesor, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor_asignatura?select=hora_inicio,hora_fin,dia,asignatura(nombre)&id_profesor=eq." + idProfesor;
+        getRequest(url, callback);
+    }
+
+    private void getRequest(String url, SupabaseCallback callback) {
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().string());
+                } else {
+                    callback.onFailure("Error de red");
+                }
+            }
+        });
+    }
+
+
 }
 
 

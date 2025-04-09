@@ -1,4 +1,4 @@
-package uni.paag2.myapplication.ui.gallery;
+package uni.paag2.myapplication.ui.reunion;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +17,7 @@ public class ReunionFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Simplemente infla el layout sin buscar el FAB
-        View root = inflater.inflate(R.layout.fragment_reunion, container, false);
+        View root = inflater.inflate(R.layout.fragment_horario, container, false);
         return root;
     }
 

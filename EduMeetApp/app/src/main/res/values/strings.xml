@@ -10,4 +10,15 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <!-- ✅ Esta línea soluciona el error -->
+    <string name="select_asignatura">Selecciona una asignatura</string>
+
+    <string-array name="dias_semana">
+        <item>lunes</item>
+        <item>martes</item>
+        <item>miercoles</item>
+        <item>jueves</item>
+        <item>viernes</item>
+    </string-array>
 </resources>

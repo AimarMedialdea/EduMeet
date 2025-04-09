@@ -1,18 +1,42 @@
 package uni.paag2.myapplication.supabase;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
 import uni.paag2.myapplication.R;
 
 public class RegisterActivity extends AppCompatActivity {
+
     private SupabaseHelper supabaseHelper;
     private EditText editTextNombre;
     private EditText editTextEmail;
     private EditText editTextPassword;
     private EditText editTextConfirmPassword;
+    private Spinner dptSpinner;
+    private List<Departamento> departamentoList = new ArrayList<>();
+
+    class Departamento {
+        int id;
+        String nombre;
+
+        Departamento(int id, String nombre) {
+            this.id = id;
+            this.nombre = nombre;
+        }
+
+        @Override
+        public String toString() {
+            return nombre;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,9 +49,45 @@ public class RegisterActivity extends AppCompatActivity {
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
+        dptSpinner = findViewById(R.id.dptSpinner);
         Button buttonRegister = findViewById(R.id.buttonRegister);
 
         buttonRegister.setOnClickListener(v -> attemptRegister());
+
+        cargarDepartamentos();
+    }
+
+    private void cargarDepartamentos() {
+        supabaseHelper.obtenerDepartamentos(new SupabaseHelper.SupabaseCallback() {
+            @Override
+            public void onSuccess(String response) {
+                runOnUiThread(() -> {
+                    try {
+                        JSONArray jsonArray = new JSONArray(response);
+                        departamentoList.clear();
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+                            int id = obj.getInt("id_departamento");
+                            String nombre = obj.getString("nombre");
+                            departamentoList.add(new Departamento(id, nombre));
+                        }
+
+                        ArrayAdapter<Departamento> adapter = new ArrayAdapter<>(RegisterActivity.this, android.R.layout.simple_spinner_item, departamentoList);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        dptSpinner.setAdapter(adapter);
+
+                    } catch (Exception e) {
+                        Toast.makeText(RegisterActivity.this, "Error procesando departamentos", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "Error al cargar departamentos", Toast.LENGTH_SHORT).show());
+            }
+        });
     }
 
     private void attemptRegister() {
@@ -46,7 +106,10 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        supabaseHelper.registerUser(nombre, email, password, new SupabaseHelper.SupabaseCallback() {
+        Departamento dptoSeleccionado = (Departamento) dptSpinner.getSelectedItem();
+        int idDepartamento = dptoSeleccionado.id;
+
+        supabaseHelper.registerUser(nombre, email, password, idDepartamento, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
                 runOnUiThread(() -> {
@@ -57,12 +120,8 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(RegisterActivity.this, error, Toast.LENGTH_SHORT).show()
-                );
+                runOnUiThread(() -> Toast.makeText(RegisterActivity.this, error, Toast.LENGTH_SHORT).show());
             }
         });
     }
-
-
 }

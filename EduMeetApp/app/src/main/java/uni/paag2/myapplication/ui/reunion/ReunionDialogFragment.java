@@ -1,4 +1,4 @@
-package uni.paag2.myapplication.ui.gallery;
+package uni.paag2.myapplication.ui.reunion;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -21,8 +21,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import uni.paag2.myapplication.R;
 import uni.paag2.myapplication.supabase.SupabaseHelper;
