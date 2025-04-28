@@ -2,6 +2,7 @@ package uni.paag2.myapplication.supabase;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import okhttp3.*;
 import org.json.JSONArray;
@@ -413,9 +414,31 @@ public class SupabaseHelper {
     }
 
     public void obtenerHorarioProfesor(int idProfesor, SupabaseCallback callback) {
+        if (idProfesor == -1) {
+            Log.e("SupabaseHelper", "ID de profesor inválido (-1)");
+            callback.onFailure("ID de profesor inválido");
+            return;
+        }
+
+        // Hacemos un SELECT más completo
         String url = BASE_URL + "profesor_asignatura?select=hora_inicio,hora_fin,dia,asignatura(nombre)&id_profesor=eq." + idProfesor;
-        getRequest(url, callback);
+        Log.d("SupabaseHelper", "URL for fetching horario: " + url);
+        getRequest(url, new SupabaseCallback() {
+            @Override
+            public void onSuccess(String response) {
+                Log.d("SupabaseHelper", "Raw horario response: " + response);
+                callback.onSuccess(response);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                callback.onFailure(error);
+            }
+        });
     }
+
+
+
 
     private void getRequest(String url, SupabaseCallback callback) {
         Request request = new Request.Builder()

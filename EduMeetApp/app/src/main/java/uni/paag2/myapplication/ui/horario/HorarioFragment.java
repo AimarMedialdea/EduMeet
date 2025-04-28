@@ -27,7 +27,7 @@ public class HorarioFragment extends Fragment {
     private HorarioViewModel horarioViewModel;
     private SupabaseHelper supabaseHelper;
     private String horaInicio = "", horaFin = "";
-    private int idProfesor = -1; // Aquí debes cargarlo de la sesión del usuario autenticado
+    private int idProfesor; // No establecer valor por defecto
 
     private Map<String, Integer> asignaturaMap = new HashMap<>();
     private String asignaturaSeleccionada = "";
@@ -46,22 +46,25 @@ public class HorarioFragment extends Fragment {
         supabaseHelper = new SupabaseHelper();
         horarioViewModel = new ViewModelProvider(this).get(HorarioViewModel.class);
 
+        // Obtener id_profesor desde SharedPreferences primero
+        SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        idProfesor = prefs.getInt("id_profesor", -1);
+        Log.d("HorarioFragment", "idProfesor cargado: " + idProfesor);
+
+        if (idProfesor == -1) {
+            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
+                    "Error: No se ha iniciado sesión correctamente", Toast.LENGTH_LONG).show());
+            return root;
+        }
+
         setupDiaSpinner();
         cargarAsignaturas();
         configurarBotones();
         observarHorario();
 
-        // Obtener id_profesor desde SharedPreferences
-        SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        idProfesor = prefs.getInt("id_profesor", -1);
+        // Obtener horario después de cargar idProfesor
+        obtenerHorario();
 
-        if (idProfesor == -1) {
-            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Error: No se ha iniciado sesión correctamente", Toast.LENGTH_LONG).show());
-            // Evita continuar si no se ha obtenido el idProfesor
-            return root;
-        }
-
-        Log.d("HorarioFragment", "idProfesor cargado: " + idProfesor);
         return root;
     }
 
@@ -132,7 +135,6 @@ public class HorarioFragment extends Fragment {
         });
     }
 
-
     private void configurarBotones() {
         btnHoraInicio.setOnClickListener(v -> mostrarTimePicker(true));
         btnHoraFin.setOnClickListener(v -> mostrarTimePicker(false));
@@ -183,33 +185,76 @@ public class HorarioFragment extends Fragment {
     private void observarHorario() {
         horarioViewModel.getHorario().observe(getViewLifecycleOwner(), lista -> {
             listaHorario.removeAllViews();
-            for (String item : lista) {
-                TextView tv = new TextView(requireContext());
-                tv.setText(item);
-                listaHorario.addView(tv);
+            LayoutInflater inflater = LayoutInflater.from(requireContext());
+
+            for (HorarioItem item : lista) {
+                View cardView = inflater.inflate(R.layout.item_horario, listaHorario, false);
+
+                TextView tvAsignatura = cardView.findViewById(R.id.tv_asignatura);
+                TextView tvDiaHora = cardView.findViewById(R.id.tv_dia_hora);
+
+                // Cortar horas para quitar segundos
+                String horaInicio = item.getHoraInicio().length() >= 5 ? item.getHoraInicio().substring(0,5) : item.getHoraInicio();
+                String horaFin = item.getHoraFin().length() >= 5 ? item.getHoraFin().substring(0,5) : item.getHoraFin();
+
+                tvAsignatura.setText(item.getNombre());
+                tvDiaHora.setText(item.getDia() + " - " + horaInicio + " a " + horaFin);
+
+                listaHorario.addView(cardView);
+                cardView.setAlpha(0f);
+                cardView.animate().alpha(1f).setDuration(500).start();
             }
         });
-        obtenerHorario();
     }
 
+
+
+
     private void obtenerHorario() {
+        if (idProfesor == -1) {
+            Log.e("HorarioFragment", "ID de profesor inválido (-1)");
+            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(),
+                    "Error: ID de profesor no válido", Toast.LENGTH_SHORT).show());
+            return;
+        }
+
         Log.d("HorarioFragment", "Obteniendo horario del profesor con id: " + idProfesor);
         supabaseHelper.obtenerHorarioProfesor(idProfesor, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
                 try {
+                    Log.d("HorarioFragment", "Respuesta de obtenerHorarioProfesor: " + response);
                     JSONArray array = new JSONArray(response);
-                    List<String> items = new ArrayList<>();
+                    List<HorarioItem> items = new ArrayList<>();
+
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject o = array.getJSONObject(i);
-                        String nombre = o.getString("nombre");
-                        String dia = o.getString("dia");
-                        String inicio = o.getString("hora_inicio");
-                        String fin = o.getString("hora_fin");
-                        items.add(dia + ": " + nombre + " (" + inicio + " - " + fin + ")");
+
+                        Log.d("HorarioFragment", "Item recibido: " + o.toString());
+
+                        String dia = o.optString("dia", "lunes");
+                        String inicio = o.optString("hora_inicio", "08:00");
+                        String fin = o.optString("hora_fin", "09:00");
+
+                        String nombreAsignatura = "Asignatura";
+
+                        if (o.has("asignatura") && !o.isNull("asignatura")) {
+                            JSONObject asignaturaObj = o.getJSONObject("asignatura");
+                            nombreAsignatura = asignaturaObj.optString("nombre", "Asignatura");
+                        } else {
+                            Log.e("HorarioFragment", "No se encontró objeto asignatura para item " + i);
+                        }
+
+                        HorarioItem item = new HorarioItem(nombreAsignatura, inicio, fin, dia);
+                        items.add(item);
                     }
+
+                    // Ordenamos por día y hora
+                    Collections.sort(items, Comparator.comparing(HorarioItem::getDia).thenComparing(HorarioItem::getHoraInicio));
+
                     horarioViewModel.setHorario(items);
-                    Log.d("HorarioFragment", "Horario obtenido correctamente");
+                    Log.d("HorarioFragment", "Horario procesado correctamente");
+
                 } catch (Exception e) {
                     Log.e("HorarioFragment", "Error al parsear el horario", e);
                     e.printStackTrace();
@@ -223,4 +268,6 @@ public class HorarioFragment extends Fragment {
             }
         });
     }
+
+
 }

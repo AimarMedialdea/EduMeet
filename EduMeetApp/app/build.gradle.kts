@@ -51,6 +51,8 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("org.json:json:20210307")
+    implementation ("androidx.cardview:cardview:1.0.0")
+
 
 
 }

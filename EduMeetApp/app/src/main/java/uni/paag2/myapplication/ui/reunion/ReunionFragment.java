@@ -17,7 +17,7 @@ public class ReunionFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         // Simplemente infla el layout sin buscar el FAB
-        View root = inflater.inflate(R.layout.fragment_horario, container, false);
+        View root = inflater.inflate(R.layout.fragment_reunion, container, false);
         return root;
     }
 

@@ -27,15 +27,15 @@
         android:id="@+id/buttonLogin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="iniciarS"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:text="Iniciar Sesion" />
 
     <TextView
         android:id="@+id/textViewRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="register"
-        android:textColor="@android:color/holo_blue_dark"
-        android:padding="8dp"/>
+        android:padding="8dp"
+        android:text="¿No tiene cuenta? registrate!"
+        android:textColor="@android:color/holo_blue_dark" />
 
 </LinearLayout>

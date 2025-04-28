@@ -7,13 +7,13 @@ import androidx.lifecycle.ViewModel;
 import java.util.List;
 
 public class HorarioViewModel extends ViewModel {
-    private final MutableLiveData<List<String>> horarioList = new MutableLiveData<>();
+    private final MutableLiveData<List<HorarioItem>> horarioList = new MutableLiveData<>();
 
-    public LiveData<List<String>> getHorario() {
+    public LiveData<List<HorarioItem>> getHorario() {
         return horarioList;
     }
 
-    public void setHorario(List<String> lista) {
+    public void setHorario(List<HorarioItem> lista) {
         horarioList.postValue(lista);
     }
 }

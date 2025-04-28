@@ -9,11 +9,11 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="Inicio" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_reunion"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Reuniones" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_horario"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Horario" />
     </group>
