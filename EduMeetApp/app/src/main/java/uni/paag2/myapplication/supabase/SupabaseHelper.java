@@ -413,26 +413,37 @@ public class SupabaseHelper {
         });
     }
 
-    public void obtenerHorarioProfesor(int idProfesor, SupabaseCallback callback) {
-        if (idProfesor == -1) {
-            Log.e("SupabaseHelper", "ID de profesor inválido (-1)");
-            callback.onFailure("ID de profesor inválido");
-            return;
-        }
+    public void obtenerHorarioProfesor(int id_profesor, SupabaseCallback callback) {
+        // Asegúrate de que la consulta incluya el campo id de la relación
+        String url = BASE_URL + "profesor_asignatura?id_profesor=eq." + id_profesor + "&select=*,asignatura(*)";
 
-        // Hacemos un SELECT más completo
-        String url = BASE_URL + "profesor_asignatura?select=hora_inicio,hora_fin,dia,asignatura(nombre)&id_profesor=eq." + idProfesor;
-        Log.d("SupabaseHelper", "URL for fetching horario: " + url);
-        getRequest(url, new SupabaseCallback() {
+        Log.d("SupabaseHelper", "Obteniendo horario para profesor: " + id_profesor + " con URL: " + url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onSuccess(String response) {
-                Log.d("SupabaseHelper", "Raw horario response: " + response);
-                callback.onSuccess(response);
+            public void onFailure(Call call, IOException e) {
+                Log.e("SupabaseHelper", "Error de red al obtener horario: " + e.getMessage());
+                callback.onFailure(e.getMessage());
             }
 
             @Override
-            public void onFailure(String error) {
-                callback.onFailure(error);
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body() != null ? response.body().string() : "No response body";
+                Log.d("SupabaseHelper", "Respuesta de obtenerHorarioProfesor: " + responseBody);
+
+                if (response.isSuccessful()) {
+                    callback.onSuccess(responseBody);
+                } else {
+                    Log.e("SupabaseHelper", "Error al obtener horario: " + response.code() + " " + response.message());
+                    callback.onFailure("Error: " + response.code() + " " + response.message() + " - " + responseBody);
+                }
             }
         });
     }
@@ -467,7 +478,15 @@ public class SupabaseHelper {
     }
 
     public void eliminarHorario(int id_relacion, SupabaseCallback callback) {
-        String url = BASE_URL + "profesor_asignatura?id=eq." + id_relacion;
+        if (id_relacion <= 0) {
+            Log.e("SupabaseHelper", "Error: Intentando eliminar con ID inválido: " + id_relacion);
+            callback.onFailure("ID de relación inválido: " + id_relacion);
+            return;
+        }
+
+        // Prueba primero con id_relacion
+        String url = BASE_URL + "profesor_asignatura?id_relacion=eq." + id_relacion;
+        Log.d("SupabaseHelper", "Intentando eliminar con URL: " + url);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -479,15 +498,59 @@ public class SupabaseHelper {
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                Log.e("SupabaseHelper", "Error de red al eliminar horario: " + e.getMessage());
                 callback.onFailure(e.getMessage());
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body() != null ? response.body().string() : "No response body";
+                Log.d("SupabaseHelper", "Respuesta al eliminar: Código " + response.code() + ", Cuerpo: " + responseBody);
+
                 if (response.isSuccessful()) {
                     callback.onSuccess("Horario eliminado correctamente");
                 } else {
-                    callback.onFailure("Error: " + response.code() + " " + response.message());
+                    // Si falla con id_relacion, intentar con id
+                    if (response.code() == 400 || response.code() == 404) {
+                        Log.d("SupabaseHelper", "Primer intento falló, probando con campo 'id'");
+                        eliminarConId(id_relacion, callback);
+                    } else {
+                        Log.e("SupabaseHelper", "Error al eliminar horario: " + response.code() + " " + response.message());
+                        callback.onFailure("Error: " + response.code() + " " + response.message() + " - " + responseBody);
+                    }
+                }
+            }
+        });
+    }
+
+    private void eliminarConId(int id, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor_asignatura?id=eq." + id;
+        Log.d("SupabaseHelper", "Intentando eliminar con URL alternativa: " + url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("SupabaseHelper", "Error de red al eliminar horario (2do intento): " + e.getMessage());
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body() != null ? response.body().string() : "No response body";
+                Log.d("SupabaseHelper", "Respuesta al eliminar (2do intento): Código " + response.code() + ", Cuerpo: " + responseBody);
+
+                if (response.isSuccessful()) {
+                    callback.onSuccess("Horario eliminado correctamente");
+                } else {
+                    Log.e("SupabaseHelper", "Error al eliminar horario (2do intento): " + response.code() + " " + response.message());
+                    callback.onFailure("Error: " + response.code() + " " + response.message() + " - " + responseBody);
                 }
             }
         });

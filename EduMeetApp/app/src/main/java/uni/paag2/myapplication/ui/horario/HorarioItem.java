@@ -1,22 +1,22 @@
 package uni.paag2.myapplication.ui.horario;
 
 public class HorarioItem {
-    private String nombre;
+    private String nombreAsignatura;
     private String horaInicio;
     private String horaFin;
     private String dia;
-    private int idProfesorAsignatura; // Added for deletion purposes
+    private int idProfesorAsignatura; // Used for delete operations
 
-    public HorarioItem(String nombre, String horaInicio, String horaFin, String dia, int idProfesorAsignatura) {
-        this.nombre = nombre;
+    public HorarioItem(String nombreAsignatura, String horaInicio, String horaFin, String dia, int idProfesorAsignatura) {
+        this.nombreAsignatura = nombreAsignatura;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
         this.dia = dia;
         this.idProfesorAsignatura = idProfesorAsignatura;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombreAsignatura() {
+        return nombreAsignatura;
     }
 
     public String getHoraInicio() {
@@ -33,5 +33,10 @@ public class HorarioItem {
 
     public int getIdProfesorAsignatura() {
         return idProfesorAsignatura;
+    }
+
+    @Override
+    public String toString() {
+        return nombreAsignatura + " - " + dia + " " + horaInicio + " - " + horaFin + " (ID: " + idProfesorAsignatura + ")";
     }
 }

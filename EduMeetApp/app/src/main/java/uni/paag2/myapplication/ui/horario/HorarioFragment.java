@@ -38,6 +38,14 @@ public class HorarioFragment extends Fragment {
     private Map<String, Integer> asignaturaMap = new HashMap<>();
     private String asignaturaSeleccionada = "";
 
+    private static final Map<String, Integer> DIAS_ORDEN = new HashMap<String, Integer>() {{
+        put("lunes", 1);
+        put("martes", 2);
+        put("miercoles", 3);
+        put("jueves", 4);
+        put("viernes", 5);
+    }};
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_horario, container, false);
@@ -94,11 +102,15 @@ public class HorarioFragment extends Fragment {
                 final int position = viewHolder.getAdapterPosition();
                 final HorarioItem itemToDelete = horarioAdapter.getHorarioItems().get(position);
 
+                // Log para debug
+                int idToDelete = itemToDelete.getIdProfesorAsignatura();
+                Log.d("HorarioFragment", "Intentando eliminar horario con ID: " + idToDelete);
+
                 new AlertDialog.Builder(requireContext())
                         .setTitle("Eliminar horario")
                         .setMessage("¿Estás seguro de que quieres eliminar este horario?")
                         .setPositiveButton("Sí", (dialog, which) -> {
-                            supabaseHelper.eliminarHorario(itemToDelete.getIdProfesorAsignatura(), new SupabaseHelper.SupabaseCallback() {
+                            supabaseHelper.eliminarHorario(idToDelete, new SupabaseHelper.SupabaseCallback() {
                                 @Override
                                 public void onSuccess(String response) {
                                     requireActivity().runOnUiThread(() -> {
@@ -114,7 +126,7 @@ public class HorarioFragment extends Fragment {
                                 public void onFailure(String error) {
                                     Log.e("HorarioFragment", "Error al eliminar horario: " + error);
                                     requireActivity().runOnUiThread(() -> {
-                                        Toast.makeText(requireContext(), "Error al eliminar horario", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(requireContext(), "Error al eliminar horario: " + error, Toast.LENGTH_SHORT).show();
                                         // Restore the item in the UI
                                         horarioAdapter.notifyItemChanged(position);
                                     });
@@ -270,19 +282,27 @@ public class HorarioFragment extends Fragment {
             @Override
             public void onSuccess(String response) {
                 try {
-                    Log.d("HorarioFragment", "Respuesta de obtenerHorarioProfesor: " + response);
+                    Log.d("HorarioFragment", "Respuesta completa de obtenerHorarioProfesor: " + response);
                     JSONArray array = new JSONArray(response);
                     List<HorarioItem> items = new ArrayList<>();
 
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject o = array.getJSONObject(i);
 
-                        Log.d("HorarioFragment", "Item recibido: " + o.toString());
+                        // Log con todos los campos del objeto para depuración
+                        Log.d("HorarioFragment", "Objeto JSON completo para item " + i + ": " + o.toString());
+
+                        // Intentar encontrar el ID en diferentes campos posibles
+                        int idRelacion = -1;
+
+                        // Comprobar todos los campos posibles donde podría estar el ID
+                        if (o.has("id_relacion")) {
+                            idRelacion = o.optInt("id_relacion", -1);
+                        }
 
                         String dia = o.optString("dia", "lunes");
                         String inicio = o.optString("hora_inicio", "08:00");
                         String fin = o.optString("hora_fin", "09:00");
-                        int idProfesorAsignatura = o.optInt("id", -1); // Assuming this is the ID for the record
 
                         String nombreAsignatura = "Asignatura";
 
@@ -293,15 +313,17 @@ public class HorarioFragment extends Fragment {
                             Log.e("HorarioFragment", "No se encontró objeto asignatura para item " + i);
                         }
 
-                        HorarioItem item = new HorarioItem(nombreAsignatura, inicio, fin, dia, idProfesorAsignatura);
+                        HorarioItem item = new HorarioItem(nombreAsignatura, inicio, fin, dia, idRelacion);
+                        Log.d("HorarioFragment", "Creado HorarioItem: " + item.toString());
                         items.add(item);
                     }
 
                     // Ordenamos por día y hora
-                    Collections.sort(items, Comparator.comparing(HorarioItem::getDia).thenComparing(HorarioItem::getHoraInicio));
 
+                    Collections.sort(items, Comparator.<HorarioItem>comparingInt(item ->
+                                    DIAS_ORDEN.getOrDefault(item.getDia().toLowerCase(), 99))
+                            .thenComparing(HorarioItem::getHoraInicio));
                     horarioViewModel.setHorario(items);
-                    Log.d("HorarioFragment", "Horario procesado correctamente");
 
                 } catch (Exception e) {
                     Log.e("HorarioFragment", "Error al parsear el horario", e);
