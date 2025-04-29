@@ -466,6 +466,33 @@ public class SupabaseHelper {
         });
     }
 
+    public void eliminarHorario(int id_relacion, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor_asignatura?id=eq." + id_relacion;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onSuccess("Horario eliminado correctamente");
+                } else {
+                    callback.onFailure("Error: " + response.code() + " " + response.message());
+                }
+            }
+        });
+    }
+
 
 }
 

@@ -1,7 +1,9 @@
 package uni.paag2.myapplication.ui.horario;
 
+import android.app.AlertDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,9 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,11 +28,12 @@ public class HorarioFragment extends Fragment {
 
     private Spinner spinnerAsignaturas, spinnerDia;
     private Button btnHoraInicio, btnHoraFin, btnGuardar;
-    private LinearLayout listaHorario;
+    private RecyclerView recyclerHorario; // Changed from LinearLayout to RecyclerView
     private HorarioViewModel horarioViewModel;
     private SupabaseHelper supabaseHelper;
     private String horaInicio = "", horaFin = "";
-    private int idProfesor; // No establecer valor por defecto
+    private int idProfesor;
+    private HorarioAdapter horarioAdapter; // Added adapter for RecyclerView
 
     private Map<String, Integer> asignaturaMap = new HashMap<>();
     private String asignaturaSeleccionada = "";
@@ -41,10 +47,18 @@ public class HorarioFragment extends Fragment {
         btnHoraInicio = root.findViewById(R.id.btn_hora_inicio);
         btnHoraFin = root.findViewById(R.id.btn_hora_fin);
         btnGuardar = root.findViewById(R.id.btn_guardar);
-        listaHorario = root.findViewById(R.id.lista_horario);
+        recyclerHorario = root.findViewById(R.id.lista_horario); // Changed ID from LinearLayout to RecyclerView
 
         supabaseHelper = new SupabaseHelper();
         horarioViewModel = new ViewModelProvider(this).get(HorarioViewModel.class);
+
+        // Configure RecyclerView
+        recyclerHorario.setLayoutManager(new LinearLayoutManager(requireContext()));
+        horarioAdapter = new HorarioAdapter(new ArrayList<>());
+        recyclerHorario.setAdapter(horarioAdapter);
+
+        // Setup swipe-to-delete
+        setupSwipeToDelete();
 
         // Obtener id_profesor desde SharedPreferences primero
         SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
@@ -66,6 +80,60 @@ public class HorarioFragment extends Fragment {
         obtenerHorario();
 
         return root;
+    }
+
+    private void setupSwipeToDelete() {
+        ItemTouchHelper.SimpleCallback swipeCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                final int position = viewHolder.getAdapterPosition();
+                final HorarioItem itemToDelete = horarioAdapter.getHorarioItems().get(position);
+
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Eliminar horario")
+                        .setMessage("¿Estás seguro de que quieres eliminar este horario?")
+                        .setPositiveButton("Sí", (dialog, which) -> {
+                            supabaseHelper.eliminarHorario(itemToDelete.getIdProfesorAsignatura(), new SupabaseHelper.SupabaseCallback() {
+                                @Override
+                                public void onSuccess(String response) {
+                                    requireActivity().runOnUiThread(() -> {
+                                        Toast.makeText(requireContext(), "Horario eliminado correctamente", Toast.LENGTH_SHORT).show();
+                                        // Remove item from adapter and notify
+                                        List<HorarioItem> currentItems = new ArrayList<>(horarioAdapter.getHorarioItems());
+                                        currentItems.remove(position);
+                                        horarioViewModel.setHorario(currentItems);
+                                    });
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    Log.e("HorarioFragment", "Error al eliminar horario: " + error);
+                                    requireActivity().runOnUiThread(() -> {
+                                        Toast.makeText(requireContext(), "Error al eliminar horario", Toast.LENGTH_SHORT).show();
+                                        // Restore the item in the UI
+                                        horarioAdapter.notifyItemChanged(position);
+                                    });
+                                }
+                            });
+                        })
+                        .setNegativeButton("No", (dialog, which) -> {
+                            // Restore the item in the UI
+                            horarioAdapter.notifyItemChanged(position);
+                        })
+                        .setOnCancelListener(dialog -> {
+                            // Restore the item in the UI if dialog is canceled
+                            horarioAdapter.notifyItemChanged(position);
+                        })
+                        .show();
+            }
+        };
+
+        new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerHorario);
     }
 
     private void setupDiaSpinner() {
@@ -184,31 +252,10 @@ public class HorarioFragment extends Fragment {
 
     private void observarHorario() {
         horarioViewModel.getHorario().observe(getViewLifecycleOwner(), lista -> {
-            listaHorario.removeAllViews();
-            LayoutInflater inflater = LayoutInflater.from(requireContext());
-
-            for (HorarioItem item : lista) {
-                View cardView = inflater.inflate(R.layout.item_horario, listaHorario, false);
-
-                TextView tvAsignatura = cardView.findViewById(R.id.tv_asignatura);
-                TextView tvDiaHora = cardView.findViewById(R.id.tv_dia_hora);
-
-                // Cortar horas para quitar segundos
-                String horaInicio = item.getHoraInicio().length() >= 5 ? item.getHoraInicio().substring(0,5) : item.getHoraInicio();
-                String horaFin = item.getHoraFin().length() >= 5 ? item.getHoraFin().substring(0,5) : item.getHoraFin();
-
-                tvAsignatura.setText(item.getNombre());
-                tvDiaHora.setText(item.getDia() + " - " + horaInicio + " a " + horaFin);
-
-                listaHorario.addView(cardView);
-                cardView.setAlpha(0f);
-                cardView.animate().alpha(1f).setDuration(500).start();
-            }
+            horarioAdapter.setHorarioItems(lista);
+            horarioAdapter.notifyDataSetChanged();
         });
     }
-
-
-
 
     private void obtenerHorario() {
         if (idProfesor == -1) {
@@ -235,6 +282,7 @@ public class HorarioFragment extends Fragment {
                         String dia = o.optString("dia", "lunes");
                         String inicio = o.optString("hora_inicio", "08:00");
                         String fin = o.optString("hora_fin", "09:00");
+                        int idProfesorAsignatura = o.optInt("id", -1); // Assuming this is the ID for the record
 
                         String nombreAsignatura = "Asignatura";
 
@@ -245,7 +293,7 @@ public class HorarioFragment extends Fragment {
                             Log.e("HorarioFragment", "No se encontró objeto asignatura para item " + i);
                         }
 
-                        HorarioItem item = new HorarioItem(nombreAsignatura, inicio, fin, dia);
+                        HorarioItem item = new HorarioItem(nombreAsignatura, inicio, fin, dia, idProfesorAsignatura);
                         items.add(item);
                     }
 
@@ -268,6 +316,4 @@ public class HorarioFragment extends Fragment {
             }
         });
     }
-
-
 }
