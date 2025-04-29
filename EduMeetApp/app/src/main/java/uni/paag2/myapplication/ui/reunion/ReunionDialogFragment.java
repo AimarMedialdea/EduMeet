@@ -2,13 +2,14 @@ package uni.paag2.myapplication.ui.reunion;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,12 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-
 import uni.paag2.myapplication.R;
+import uni.paag2.myapplication.model.Reunion;
 import uni.paag2.myapplication.supabase.SupabaseHelper;
 
 public class ReunionDialogFragment extends DialogFragment {
@@ -31,15 +28,19 @@ public class ReunionDialogFragment extends DialogFragment {
     private TextView fechaTextView, horaTextView;
     private Button btnGuardar;
     private Spinner salaSpinner;
-    private MultiAutoCompleteTextView participantesTextView;
 
-    // Lista para almacenar nombres y IDs de profesores
-    private ArrayList<String> nombresProfesores = new ArrayList<>();
-    private ArrayList<Integer> idsProfesores = new ArrayList<>();
-    private ArrayAdapter<String> adapter;
+    // Para edición
+    private Integer idReunion = null;
 
-    // Lista para mantener los profesores seleccionados
-    private ArrayList<Integer> idsProfesoresSeleccionados = new ArrayList<>();
+    public void setReunionData(int idReunion, String tema, String fecha, String hora, String sala) {
+        this.idReunion = idReunion;
+        Bundle args = new Bundle();
+        args.putString("tema", tema);
+        args.putString("fecha", fecha);
+        args.putString("hora", hora);
+        args.putString("sala", sala);
+        setArguments(args);
+    }
 
     @NonNull
     @Override
@@ -48,21 +49,29 @@ public class ReunionDialogFragment extends DialogFragment {
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_reunion, null);
 
-        // Inicializar vistas
         temaEditText = view.findViewById(R.id.temaEditText);
-        fechaTextView = view.findViewById(R.id.fechaTextView);
-        horaTextView = view.findViewById(R.id.horaTextView);
+        fechaTextView = view.findViewById(R.id.fechaEditText);
+        horaTextView = view.findViewById(R.id.horaEditText);
         btnGuardar = view.findViewById(R.id.btnGuardar);
         salaSpinner = view.findViewById(R.id.salaSpinner);
-        participantesTextView = view.findViewById(R.id.participantesTextView);
 
-        // Configurar el spinner para la selección de sala
         configurarSpinner();
 
-        // Obtener la lista de profesores de la base de datos
-        obtenerNombresProfesores();
+        // Si hay datos para edición
+        if (getArguments() != null) {
+            idReunion = getArguments().getInt("id_reunion", -1);
+            if (idReunion == -1) idReunion = null;
 
-        // Configurar el botón para guardar la reunión
+            temaEditText.setText(getArguments().getString("tema"));
+            fechaTextView.setText(getArguments().getString("fecha"));
+            horaTextView.setText(getArguments().getString("hora"));
+
+            String sala = getArguments().getString("sala");
+            ArrayAdapter adapter = (ArrayAdapter) salaSpinner.getAdapter();
+            int pos = adapter.getPosition(sala);
+            salaSpinner.setSelection(pos);
+        }
+
         btnGuardar.setOnClickListener(v -> guardarReunion());
 
         builder.setView(view);
@@ -76,114 +85,72 @@ public class ReunionDialogFragment extends DialogFragment {
         salaSpinner.setAdapter(adapter);
     }
 
-    private void obtenerNombresProfesores() {
-        SupabaseHelper supabaseHelper = new SupabaseHelper();
-        supabaseHelper.obtenerNombresProfesores(new SupabaseHelper.SupabaseCallback() {
-            @Override
-            public void onSuccess(String response) {
-                try {
-                    JSONArray jsonArray = new JSONArray(response);
-
-                    // Limpiar las listas por si se recargan los datos
-                    nombresProfesores.clear();
-                    idsProfesores.clear();
-
-                    // Procesar cada profesor y agregar su nombre e ID a las listas
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject profesor = jsonArray.getJSONObject(i);
-                        String nombre = profesor.getString("nombre");
-                        int id = profesor.getInt("id_profesor");
-
-                        nombresProfesores.add(nombre);
-                        idsProfesores.add(id);
-                    }
-
-                    // Configurar el adaptador para el MultiAutoCompleteTextView en el hilo de UI
-                    getActivity().runOnUiThread(() -> {
-                        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, nombresProfesores);
-                        participantesTextView.setAdapter(adapter);
-                        participantesTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-
-                        // Agregar un listener para capturar los profesores seleccionados
-                        participantesTextView.setOnItemClickListener((parent, view, position, id) -> {
-                            // No es necesario hacer nada aquí, se procesarán las selecciones al guardar
-                        });
-                    });
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    getActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Error al procesar datos de profesores", Toast.LENGTH_SHORT).show();
-                    });
-                }
-            }
-
-            @Override
-            public void onFailure(String error) {
-                System.err.println("Error al obtener nombres de profesores: " + error);
-                getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Error al obtener profesores: " + error, Toast.LENGTH_SHORT).show();
-                });
-            }
-        });
-    }
-
     private void guardarReunion() {
         String tema = temaEditText.getText().toString().trim();
         String fecha = fechaTextView.getText().toString().trim();
         String hora = horaTextView.getText().toString().trim();
-        String participantesTexto = participantesTextView.getText().toString().trim();
+        String sala = salaSpinner.getSelectedItem().toString();
 
-        // Validar los campos
         if (tema.isEmpty()) {
             temaEditText.setError("El tema es obligatorio");
             return;
         }
-
-        if (participantesTexto.isEmpty()) {
-            participantesTextView.setError("Debes seleccionar al menos un participante");
+        if (fecha.isEmpty() || hora.isEmpty()) {
+            Toast.makeText(getContext(), "Debes seleccionar fecha y hora", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Procesar los profesores seleccionados
-        String[] profesoresSeleccionados = participantesTexto.split(", ");
-        idsProfesoresSeleccionados.clear();
-
-        for (String nombreProfesor : profesoresSeleccionados) {
-            nombreProfesor = nombreProfesor.trim();
-            int index = nombresProfesores.indexOf(nombreProfesor);
-            if (index != -1) {
-                idsProfesoresSeleccionados.add(idsProfesores.get(index));
-            }
-        }
-
-        if (idsProfesoresSeleccionados.isEmpty()) {
-            Toast.makeText(getContext(), "No se encontraron profesores válidos", Toast.LENGTH_SHORT).show();
+        SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
+        int idProfesor = prefs.getInt("id_profesor", -1);
+        if (idProfesor == -1) {
+            Toast.makeText(getContext(), "Error: No se ha iniciado sesión correctamente", Toast.LENGTH_LONG).show();
             return;
         }
 
-        // Formato de fecha y hora para la BD
-        String fechaHoraInicio = fecha + "T" + hora + ":00";
-
-        // Mostrar un mensaje de carga
-        Toast.makeText(getContext(), "Guardando reunión...", Toast.LENGTH_SHORT).show();
-
-        // Guardar la reunión
         SupabaseHelper supabaseHelper = new SupabaseHelper();
-        supabaseHelper.insertarReunionConParticipantes(tema, fechaHoraInicio, idsProfesoresSeleccionados, new SupabaseHelper.SupabaseCallback() {
+
+        if (idReunion == null) {
+            // Nueva reunión
+            Toast.makeText(getContext(), "Guardando reunión...", Toast.LENGTH_SHORT).show();
+            supabaseHelper.insertarReunion(tema, fecha, hora + ":00", sala, idProfesor, callback());
+        } else {
+            // Actualizar reunión existente
+            Toast.makeText(getContext(), "Actualizando reunión...", Toast.LENGTH_SHORT).show();
+            supabaseHelper.actualizarReunion(idReunion, tema, fecha, hora + ":00", sala, idProfesor, callback());
+        }
+    }
+
+    private SupabaseHelper.SupabaseCallback callback() {
+        return new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Reunión guardada correctamente", Toast.LENGTH_SHORT).show();
-                    dismiss(); // Cerrar el diálogo
+                    Toast.makeText(getContext(), "Operación exitosa", Toast.LENGTH_SHORT).show();
+                    dismiss();
                 });
             }
 
             @Override
             public void onFailure(String error) {
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Error al guardar la reunión: " + error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
                 });
             }
-        });
+        };
     }
+
+    public static ReunionDialogFragment nuevaParaEditar(Reunion reunion) {
+        ReunionDialogFragment fragment = new ReunionDialogFragment();
+
+        Bundle args = new Bundle();
+        args.putInt("id_reunion", reunion.getIdReunion());
+        args.putString("tema", reunion.getTema());
+        args.putString("fecha", reunion.getFecha());
+        args.putString("hora", reunion.getHoraInicio());
+        args.putString("sala", reunion.getSala());
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 }

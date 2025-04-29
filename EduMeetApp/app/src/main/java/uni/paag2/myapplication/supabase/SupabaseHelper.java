@@ -5,7 +5,10 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import okhttp3.*;
+import uni.paag2.myapplication.model.Reunion;
+
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,47 +30,12 @@ public class SupabaseHelper {
     }
 
 
-
-
-    // Método para insertar reunión en Supabase
-    public void insertarReunion(int idProfesor, String horaInicio, String tema, SupabaseCallback callback) {
-        String url = BASE_URL + "reunion";
-
-        JSONObject json = new JSONObject();
-        try {
-            json.put("id_profesor", idProfesor);
-            json.put("hora_inicio", horaInicio);
-            json.put("tema", tema);
-        } catch (Exception e) {
-            callback.onFailure("Error al crear JSON");
-            return;
-        }
-
-        RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .addHeader("apikey", API_KEY)
-                .addHeader("Authorization", "Bearer " + API_KEY)
-                .addHeader("Content-Type", "application/json")
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                callback.onFailure(e.getMessage());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    callback.onSuccess("Reunión insertada correctamente");
-                } else {
-                    callback.onFailure("Error: " + response.code() + " " + response.message());
-                }
-            }
-        });
+    public interface ReunionesCallback {
+        void onSuccess(List<Reunion> reuniones);
+        void onFailure(String error);
     }
+
+
 
     // Método para obtener todos los profesores
     public void obtenerNombresProfesores(SupabaseCallback callback) {
@@ -100,37 +68,32 @@ public class SupabaseHelper {
     }
 
     // Método para insertar una reunión con múltiples participantes
-    public void insertarReunionConParticipantes(String tema, String horaInicio, List<Integer> idProfesores, SupabaseCallback callback) {
-        if (idProfesores == null || idProfesores.isEmpty()) {
-            callback.onFailure("La lista de profesores está vacía");
-            return;
-        }
+    public void insertarReunion(String tema, String fecha, String hora, String sala, int idProfesor, SupabaseCallback callback) {
+        String url = BASE_URL + "reunion";
 
-        // Primero insertamos la reunión principal
-        String urlReunion = BASE_URL + "reunion";
-
-        JSONObject jsonReunion = new JSONObject();
+        JSONObject json = new JSONObject();
         try {
-            // Usamos el primer profesor como responsable principal
-            jsonReunion.put("id_profesor", idProfesores.get(0));
-            jsonReunion.put("hora_inicio", horaInicio);
-            jsonReunion.put("tema", tema);
+            json.put("tema", tema);
+            json.put("fecha", fecha);               // Formato YYYY-MM-DD
+            json.put("hora_inicio", hora);          // Formato HH:mm:ss
+            json.put("sala", sala);
+            json.put("id_profesor", idProfesor);    // ID del profesor desde SharedPreferences
         } catch (Exception e) {
             callback.onFailure("Error al crear JSON de reunión: " + e.getMessage());
             return;
         }
 
-        RequestBody bodyReunion = RequestBody.create(jsonReunion.toString(), MediaType.parse("application/json"));
-        Request requestReunion = new Request.Builder()
-                .url(urlReunion)
-                .post(bodyReunion)
+        RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
                 .addHeader("apikey", API_KEY)
                 .addHeader("Authorization", "Bearer " + API_KEY)
                 .addHeader("Content-Type", "application/json")
-                .addHeader("Prefer", "return=representation") // Para que devuelva la fila insertada
+                .addHeader("Prefer", "return=representation")
                 .build();
 
-        client.newCall(requestReunion).enqueue(new Callback() {
+        client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 callback.onFailure("Error de conexión: " + e.getMessage());
@@ -138,34 +101,18 @@ public class SupabaseHelper {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful() && response.body() != null) {
-                    String responseData = response.body().string();
-                    try {
-                        // Obtenemos el ID de la reunión creada
-                        JSONArray jsonArray = new JSONArray(responseData);
-                        if (jsonArray.length() > 0) {
-                            JSONObject reunionInsertada = jsonArray.getJSONObject(0);
-                            int idReunion = reunionInsertada.getInt("id_reunion");
-
-                            // Si hay más de un profesor, insertamos los participantes adicionales
-                            if (idProfesores.size() > 1) {
-                                insertarParticipantesAdicionales(idReunion, idProfesores, callback);
-                            } else {
-                                callback.onSuccess("Reunión creada correctamente");
-                            }
-                        } else {
-                            callback.onFailure("No se pudo obtener el ID de la reunión creada");
-                        }
-                    } catch (Exception e) {
-                        callback.onFailure("Error al procesar respuesta: " + e.getMessage());
-                    }
+                String responseData = response.body() != null ? response.body().string() : "";
+                if (response.isSuccessful()) {
+                    callback.onSuccess("Reunión insertada correctamente");
                 } else {
-                    String errorBody = response.body() != null ? response.body().string() : "Sin detalles";
-                    callback.onFailure("Error al crear reunión: " + response.code() + " - " + errorBody);
+                    callback.onFailure("Error al insertar reunión: " + response.code() + " - " + responseData);
                 }
             }
         });
     }
+
+
+
 
     // Método para insertar los profesores adicionales como participantes
     private void insertarParticipantesAdicionales(int idReunion, List<Integer> idProfesores, SupabaseCallback callback) {
@@ -555,6 +502,104 @@ public class SupabaseHelper {
             }
         });
     }
+
+    public void obtenerReunionesPorProfesor(int idProfesor, ReunionesCallback callback) {
+        String url = BASE_URL + "reunion?id_profesor=eq." + idProfesor;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Accept", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Error de conexión: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.body() == null) {
+                    callback.onFailure("Respuesta vacía del servidor");
+                    return;
+                }
+
+                String responseData = response.body().string();
+                if (response.isSuccessful()) {
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseData);
+                        List<Reunion> reuniones = new ArrayList<>();
+
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+                            Reunion reunion = new Reunion();
+                            reunion.setIdReunion(obj.getInt("id_reunion"));
+                            reunion.setTema(obj.getString("tema"));
+                            reunion.setFecha(obj.optString("fecha", ""));
+                            reunion.setHoraInicio(obj.optString("hora_inicio", ""));
+                            reunion.setSala(obj.optString("sala", ""));
+                            reunion.setIdProfesor(obj.optInt("id_profesor", -1));
+
+                            reuniones.add(reunion);  // Aquí se añade la reunión a la lista
+                        }
+
+                        // Llamar al callback.onSuccess con la lista de reuniones
+                        callback.onSuccess(reuniones);
+
+                    } catch (JSONException e) {
+                        callback.onFailure("Error al parsear JSON: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("Error HTTP: " + response.code());
+                }
+            }
+        });
+    }
+
+
+    public void actualizarReunion(int idReunion, String tema, String fecha, String hora, String sala, int idProfesor, SupabaseCallback callback) {
+        JSONObject reunionJson = new JSONObject();
+        try {
+            reunionJson.put("tema", tema);
+            reunionJson.put("fecha", fecha);
+            reunionJson.put("hora_inicio", hora);
+            reunionJson.put("sala", sala);
+            reunionJson.put("id_profesor", idProfesor);
+        } catch (JSONException e) {
+            callback.onFailure("Error al crear JSON: " + e.getMessage());
+            return;
+        }
+
+        String url = BASE_URL + "/reunion?id=eq." + idReunion;
+        Request request = new Request.Builder()
+                .url(url)
+                .patch(RequestBody.create(reunionJson.toString(), MediaType.parse("application/json")))
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.body().string());
+                } else {
+                    callback.onFailure("Error " + response.code() + ": " + response.body().string());
+                }
+            }
+        });
+    }
+
+
 
 
 }

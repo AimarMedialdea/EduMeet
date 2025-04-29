@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp">
@@ -44,22 +43,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Fecha:"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/temaEditText"
-        app:layout_constraintBaseline_toBaselineOf="@id/fechaTextView"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintTop_toBottomOf="@id/temaEditText"/>
 
-    <TextView
-        android:id="@+id/fechaTextView"
+    <EditText
+        android:id="@+id/fechaEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:hint="YYYY-MM-DD"
+        android:inputType="date"
         android:layout_marginStart="8dp"
-        android:text="2024-04-01"
-        android:padding="8dp"
-        android:background="@android:drawable/editbox_background"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/temaEditText"
         app:layout_constraintStart_toEndOf="@id/fechaLabel"
-        app:layout_constraintTop_toBottomOf="@+id/temaEditText"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
     <TextView
@@ -67,22 +64,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hora:"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fechaTextView"
-        app:layout_constraintBaseline_toBaselineOf="@id/horaTextView"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintTop_toBottomOf="@id/fechaEditText"/>
 
-    <TextView
-        android:id="@+id/horaTextView"
+    <EditText
+        android:id="@+id/horaEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:hint="HH:MM"
+        android:inputType="time"
         android:layout_marginStart="8dp"
-        android:text="10:00"
-        android:padding="8dp"
-        android:background="@android:drawable/editbox_background"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/fechaEditText"
         app:layout_constraintStart_toEndOf="@id/horaLabel"
-        app:layout_constraintTop_toBottomOf="@id/fechaTextView"
+        app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
     <TextView
@@ -90,49 +85,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sala:"
+        android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/horaTextView"
-        app:layout_constraintBaseline_toBaselineOf="@id/salaSpinner"
-        android:layout_marginTop="16dp"/>
+        app:layout_constraintTop_toBottomOf="@id/horaEditText"
+        app:layout_constraintBaseline_toBaselineOf="@id/salaSpinner"/>
 
     <Spinner
         android:id="@+id/salaSpinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/horaEditText"
         app:layout_constraintStart_toEndOf="@id/salaLabel"
-        app:layout_constraintTop_toBottomOf="@id/horaTextView"
-        android:layout_marginTop="16dp" />
-
-    <TextView
-        android:id="@+id/participantesLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Participantes:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/salaSpinner"
-        android:layout_marginTop="16dp"/>
-
-    <MultiAutoCompleteTextView
-        android:id="@+id/participantesTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Seleccionar participantes (separados por coma)"
-        android:inputType="text"
-        app:layout_constraintTop_toBottomOf="@id/participantesLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="4dp"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/btnGuardar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Guardar"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/salaSpinner"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/participantesTextView"
-        android:layout_marginTop="24dp" />
-
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

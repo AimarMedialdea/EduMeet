@@ -4,16 +4,26 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.List;
+
+import uni.paag2.myapplication.model.Reunion;
+
 public class ReunionViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    // LiveData que contiene la lista de reuniones
+    private final MutableLiveData<List<Reunion>> reuniones;
 
     public ReunionViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is gallery fragment");
+        reuniones = new MutableLiveData<>();
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    // Método para obtener las reuniones
+    public LiveData<List<Reunion>> getReuniones() {
+        return reuniones;
+    }
+
+    // Método para actualizar la lista de reuniones
+    public void setReuniones(List<Reunion> nuevasReuniones) {
+        reuniones.setValue(nuevasReuniones);
     }
 }
