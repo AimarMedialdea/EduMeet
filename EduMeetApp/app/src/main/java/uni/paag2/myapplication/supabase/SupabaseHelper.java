@@ -599,6 +599,33 @@ public class SupabaseHelper {
         });
     }
 
+    public void obtenerTodasLasReuniones(SupabaseCallback callback) {
+        String url = BASE_URL + "reunion?select=id_reunion,tema,fecha,hora_inicio,sala,id_profesor";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().string());
+                } else {
+                    callback.onFailure("Código: " + response.code());
+                }
+            }
+        });
+    }
+
 
 
 
