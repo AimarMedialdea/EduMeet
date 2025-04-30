@@ -48,7 +48,8 @@
             android:id="@+id/btnUnirse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Unirse"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:backgroundTint="#009688"
+            android:text="Unirse" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -38,8 +38,9 @@ public class SupabaseHelper {
 
 
     // Método para obtener todos los profesores
-    public void obtenerNombresProfesores(SupabaseCallback callback) {
-        String url = BASE_URL + "profesor?select=id_profesor,nombre";
+    public void obtenerDatosProfesorPorId(int idProfesor, SupabaseCallback callback) {
+        // URL corregida con la sintaxis correcta de filtro en Supabase
+        String url = BASE_URL + "profesor?select=id_profesor,nombre,email&id_profesor=eq." + idProfesor;
 
         Request request = new Request.Builder()
                 .url(url)
@@ -61,11 +62,13 @@ public class SupabaseHelper {
                     String responseData = response.body().string();
                     callback.onSuccess(responseData);
                 } else {
-                    callback.onFailure("Error: " + response.code() + " " + response.message());
+                    String errorBody = response.body() != null ? response.body().string() : "No error details";
+                    callback.onFailure("Error: " + response.code() + " " + response.message() + "\n" + errorBody);
                 }
             }
         });
     }
+
 
     // Método para insertar una reunión con múltiples participantes
     public void insertarReunion(String tema, String fecha, String hora, String sala, int idProfesor, SupabaseCallback callback) {
@@ -626,7 +629,39 @@ public class SupabaseHelper {
         });
     }
 
+    public void obtenerDatosProfesorPorEmail(String email, SupabaseCallback callback) {
+        // URL para buscar por email
+        String url = BASE_URL + "profesor?select=id_profesor,nombre,email&email=eq." + email;
 
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+                Log.e("SUPABASE", "Error en la solicitud: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseData = response.body().string();
+                    Log.d("SUPABASE", "Respuesta exitosa: " + responseData);
+                    callback.onSuccess(responseData);
+                } else {
+                    String errorBody = response.body() != null ? response.body().string() : "No error details";
+                    Log.e("SUPABASE", "Error en la respuesta: " + response.code() + " " + errorBody);
+                    callback.onFailure("Error: " + response.code() + " " + response.message() + "\n" + errorBody);
+                }
+            }
+        });
+    }
 
 
 }

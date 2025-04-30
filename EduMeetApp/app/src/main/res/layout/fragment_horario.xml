@@ -21,18 +21,21 @@
         android:id="@+id/btn_hora_inicio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#009688"
         android:text="Seleccionar Hora Inicio" />
 
     <Button
         android:id="@+id/btn_hora_fin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#009688"
         android:text="Seleccionar Hora Fin" />
 
     <Button
         android:id="@+id/btn_guardar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="#009688"
         android:text="Guardar Horario" />
 
     <TextView
