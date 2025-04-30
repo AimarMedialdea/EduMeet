@@ -54,31 +54,32 @@ public class LogInSupa extends AppCompatActivity {
             @Override
             public void onSuccess(String response) {
                 try {
-                    // Intentar parsear la respuesta para obtener información del usuario
                     JSONObject jsonResponse = new JSONObject(response);
 
-                    // Guardar el email del usuario en SharedPreferences
-                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("user_email", email);
 
-                    // Intentar obtener el token de acceso si está disponible
                     if (jsonResponse.has("access_token")) {
                         String accessToken = jsonResponse.getString("access_token");
                         editor.putString("access_token", accessToken);
                     }
 
-                    // Aplicar los cambios
                     editor.apply();
-
                     Log.d("LOGIN", "Email guardado en SharedPreferences: " + email);
+
+                    // Obtener el ID del profesor después del login exitoso
+                    obtenerIdProfesor(email);
+
                 } catch (JSONException e) {
-                    // Si falla el parseo, al menos guardar el email
                     Log.e("LOGIN", "Error al parsear respuesta JSON: " + e.getMessage());
-                    SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("user_email", email);
                     editor.apply();
+
+                    // También intenta obtener el ID del profesor aunque falle el parseo
+                    obtenerIdProfesor(email);
                 }
 
                 runOnUiThread(() -> {
@@ -94,6 +95,24 @@ public class LogInSupa extends AppCompatActivity {
                 runOnUiThread(() ->
                         Toast.makeText(LogInSupa.this, error, Toast.LENGTH_SHORT).show()
                 );
+            }
+        });
+    }
+
+    private void obtenerIdProfesor(String email) {
+        supabaseHelper.obtenerIdProfesorPorEmail(email, LogInSupa.this, new SupabaseHelper.SupabaseCallback() {
+            @Override
+            public void onSuccess(String idProfesor) {
+                SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt("id_profesor", Integer.parseInt(idProfesor));
+                editor.apply();
+                Log.d("LOGIN", "ID profesor guardado en SharedPreferences: " + idProfesor);
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Log.e("LOGIN", "Error al obtener id_profesor: " + error);
             }
         });
     }

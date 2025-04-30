@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import java.util.List;
+
 import uni.paag2.myapplication.R;
 import uni.paag2.myapplication.model.Reunion;
 import uni.paag2.myapplication.supabase.SupabaseHelper;
@@ -79,11 +81,32 @@ public class ReunionDialogFragment extends DialogFragment {
     }
 
     private void configurarSpinner() {
-        String[] opciones = new String[]{"Sala A", "Sala B", "Sala C", "Aula Magna"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, opciones);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        salaSpinner.setAdapter(adapter);
+        SupabaseHelper supabaseHelper = new SupabaseHelper();
+        supabaseHelper.obtenerAulas(new SupabaseHelper.SupabaseCallbackAulas() {
+            @Override
+            public void onSuccess(List<String> aulas) {
+                if (getActivity() == null) return;
+                getActivity().runOnUiThread(() -> {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, aulas);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    salaSpinner.setAdapter(adapter);
+
+                    // Si estamos editando, seleccionamos el aula correspondiente
+                    if (getArguments() != null) {
+                        String sala = getArguments().getString("sala");
+                        int pos = adapter.getPosition(sala);
+                        if (pos >= 0) salaSpinner.setSelection(pos);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getContext(), "Error al cargar aulas: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     private void guardarReunion() {
         String tema = temaEditText.getText().toString().trim();

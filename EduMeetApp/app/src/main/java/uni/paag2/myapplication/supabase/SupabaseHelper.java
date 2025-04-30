@@ -35,6 +35,10 @@ public class SupabaseHelper {
         void onFailure(String error);
     }
 
+    public interface SupabaseCallbackAulas {
+        void onSuccess(List<String> aulas);
+        void onFailure(String error);
+    }
 
 
     // Método para obtener todos los profesores
@@ -663,8 +667,82 @@ public class SupabaseHelper {
         });
     }
 
+    public void obtenerIdProfesorPorEmail(String email, Context context, SupabaseCallback callback) {
+        OkHttpClient client = new OkHttpClient();
+        String url = BASE_URL + "/rest/v1/profesor?correo=eq." + email;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Error de red al obtener el ID del profesor");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String body = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(body);
+                        if (jsonArray.length() > 0) {
+                            JSONObject profesor = jsonArray.getJSONObject(0);
+                            int idProfesor = profesor.getInt("id_profesor");
+                            callback.onSuccess(String.valueOf(idProfesor));
+                        } else {
+                            callback.onFailure("Profesor no encontrado");
+                        }
+                    } catch (JSONException e) {
+                        callback.onFailure("Error al parsear JSON: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("Error al consultar profesor: " + response.code());
+                }
+            }
+        });
+    }
+    public void obtenerAulas(SupabaseCallbackAulas callback) {
+        new Thread(() -> {
+            try {
+                String url = BASE_URL + "aula?select=descripcion";
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .addHeader("apikey", API_KEY)
+                        .addHeader("Authorization", "Bearer " + API_KEY)
+                        .build();
+
+                Response response = client.newCall(request).execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseBody = response.body().string();
+                    JSONArray jsonArray = new JSONArray(responseBody);
+                    List<String> aulas = new ArrayList<>();
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject obj = jsonArray.getJSONObject(i);
+                        aulas.add(obj.getString("descripcion"));
+                    }
+
+                    callback.onSuccess(aulas);
+                } else {
+                    callback.onFailure("Error HTTP: " + response.code());
+                }
+
+            } catch (Exception e) {
+                callback.onFailure("Excepción: " + e.getMessage());
+            }
+        }).start();
+    }
 
 }
+
 
 
 

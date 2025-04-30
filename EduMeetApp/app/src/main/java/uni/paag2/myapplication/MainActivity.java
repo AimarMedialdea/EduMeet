@@ -128,19 +128,15 @@ public class MainActivity extends AppCompatActivity {
         // Configura el comportamiento del FAB según el destino de navegación
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.nav_reunion) {
-                fab.setVisibility(View.VISIBLE);
+                fab.show();
                 fab.setOnClickListener(view -> {
                     ReunionDialogFragment dialog = new ReunionDialogFragment();
                     dialog.show(getSupportFragmentManager(), "ReunionDialog");
                 });
             } else {
-                fab.setVisibility(View.VISIBLE);
-                fab.setOnClickListener(view -> {
-                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null)
-                            .setAnchorView(R.id.fab).show();
-                });
+                fab.hide(); // ✅ Oculta el botón en cualquier otro destino
             }
+
         });
 
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
