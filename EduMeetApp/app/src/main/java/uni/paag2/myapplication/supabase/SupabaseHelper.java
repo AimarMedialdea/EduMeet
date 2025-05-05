@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class SupabaseHelper {
     private static final String BASE_URL = "https://trjiewwhjoeytkdwkvlm.supabase.co/rest/v1/";
@@ -39,6 +40,46 @@ public class SupabaseHelper {
         void onSuccess(List<String> aulas);
         void onFailure(String error);
     }
+
+    public interface ParticipantesCallback {
+        void onSuccess(List<String> participantes);
+        void onFailure(String error);
+    }
+
+    public void obtenerParticipantesPorReunion(int idReunion, ParticipantesCallback callback) {
+        new Thread(() -> {
+            try {
+                String url = BASE_URL + "profesor_reunion?id_reunion=eq." + idReunion + "&unirme=eq.true&select=id_profesor(nombre)";
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .addHeader("apikey", API_KEY)
+                        .addHeader("Authorization", "Bearer " + API_KEY)
+                        .build();
+
+                Response response = client.newCall(request).execute();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    String responseBody = response.body().string();
+                    JSONArray jsonArray = new JSONArray(responseBody);
+                    List<String> participantes = new ArrayList<>();
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject obj = jsonArray.getJSONObject(i);
+                        JSONObject profesor = obj.getJSONObject("id_profesor");
+                        participantes.add(profesor.getString("nombre"));
+                    }
+
+                    callback.onSuccess(participantes);
+                } else {
+                    callback.onFailure("HTTP Error: " + response.code());
+                }
+            } catch (Exception e) {
+                callback.onFailure("Excepción: " + e.getMessage());
+            }
+        }).start();
+    }
+
 
 
     // Método para obtener todos los profesores
@@ -740,6 +781,52 @@ public class SupabaseHelper {
             }
         }).start();
     }
+
+    public void obtenerReunionesUnidasPorProfesor(int idProfesor, ReunionesCallback callback) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                // Reuniones a las que se ha unido (unirme = true)
+                String url = BASE_URL + "profesor_reunion?profesor_id=eq." + idProfesor
+                        + "&unirme=eq.true&select=reunion(*)";
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .addHeader("apikey", API_KEY)
+                        .addHeader("Authorization", "Bearer " + API_KEY)
+                        .build();
+
+                Response response = client.newCall(request).execute();
+
+                if (!response.isSuccessful()) {
+                    callback.onFailure("Error al obtener reuniones unidas: " + response.message());
+                    return;
+                }
+
+                String responseBody = response.body().string();
+                JSONArray jsonArray = new JSONArray(responseBody);
+                List<Reunion> reuniones = new ArrayList<>();
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject reunionWrapper = jsonArray.getJSONObject(i);
+                    JSONObject jsonReunion = reunionWrapper.getJSONObject("reunion");
+
+                    Reunion reunion = new Reunion();
+                    reunion.setIdReunion(jsonReunion.getInt("id"));
+                    reunion.setTema(jsonReunion.getString("tema"));
+                    reunion.setFecha(jsonReunion.getString("fecha"));
+                    reunion.setHoraInicio(jsonReunion.getString("hora_inicio"));
+                    reunion.setSala(jsonReunion.getString("sala"));
+                    reuniones.add(reunion);
+                }
+
+                callback.onSuccess(reuniones);
+
+            } catch (Exception e) {
+                callback.onFailure("Excepción: " + e.getMessage());
+            }
+        });
+    }
+
 
 }
 

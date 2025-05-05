@@ -39,6 +39,15 @@
             android:text="Sala"
             android:textSize="14sp"
             android:textColor="#666666" />
+
+        <TextView
+            android:id="@+id/participantesTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Participantes"
+            android:textSize="14sp"
+            android:textColor="#555555" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

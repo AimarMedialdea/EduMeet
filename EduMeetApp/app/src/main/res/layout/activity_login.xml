@@ -12,7 +12,7 @@
         android:layout_marginBottom="8dp"
         android:hint="email"
         android:inputType="textEmailAddress"
-        android:text="aa@gmail.com" />
+        android:text="aimar@gmail.com" />
 
     <EditText
         android:id="@+id/editTextPassword"
