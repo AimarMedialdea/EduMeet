@@ -46,7 +46,7 @@ public class ReunionAdapter extends RecyclerView.Adapter<ReunionAdapter.ViewHold
             sala.setText(reunion.getSala());
             itemView.setOnClickListener(v -> listener.onClick(reunion));
 
-            participantes.setText("Cargando participantes...");
+            participantes.setText("Cargando pyarticipantes...");
             helper.obtenerParticipantesPorReunion(reunion.getIdReunion(), new SupabaseHelper.ParticipantesCallback() {
                 @Override
                 public void onSuccess(List<String> nombres) {

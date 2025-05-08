@@ -786,7 +786,7 @@ public class SupabaseHelper {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 // Reuniones a las que se ha unido (unirme = true)
-                String url = BASE_URL + "profesor_reunion?profesor_id=eq." + idProfesor
+                String url = BASE_URL + "profesor_reunion?id_profesor=eq." + idProfesor
                         + "&unirme=eq.true&select=reunion(*)";
 
                 Request request = new Request.Builder()
@@ -811,7 +811,7 @@ public class SupabaseHelper {
                     JSONObject jsonReunion = reunionWrapper.getJSONObject("reunion");
 
                     Reunion reunion = new Reunion();
-                    reunion.setIdReunion(jsonReunion.getInt("id"));
+                    reunion.setIdReunion(jsonReunion.getInt("id_profesor"));
                     reunion.setTema(jsonReunion.getString("tema"));
                     reunion.setFecha(jsonReunion.getString("fecha"));
                     reunion.setHoraInicio(jsonReunion.getString("hora_inicio"));
@@ -826,9 +826,102 @@ public class SupabaseHelper {
             }
         });
     }
+    public void obtenerTodasLasReunionesCard(SupabaseCallback callback) {
+        String url = BASE_URL + "/rest/v1/reunion?select=*";
 
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
 
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    callback.onSuccess(responseData);
+                } else {
+                    callback.onFailure("Error: " + response.code() + " " + response.message());
+                }
+            }
+        });
+    }
+
+    public void obtenerAsignaturasCard(SupabaseCallback callback) {
+        String url = BASE_URL + "/rest/v1/asignatura?select=*";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    callback.onSuccess(responseData);
+                } else {
+                    callback.onFailure("Error: " + response.code() + " " + response.message());
+                }
+            }
+        });
+    }
+
+    public void obtenerHorarioProfesor(int idProfesor, String diaSemana, SupabaseCallback callback) {
+        String url = BASE_URL + "/rest/v1/profesor_asignatura?id_profesor=eq." + idProfesor +
+                "&dia=eq." + diaSemana.toLowerCase();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    callback.onSuccess(responseData);
+                } else {
+                    callback.onFailure("Error: " + response.code() + " " + response.message());
+                }
+            }
+        });
+    }
+
+    public String getSUPABASE_URL() {
+        return BASE_URL;
+    }
+
+    public String getSUPABASE_KEY() {
+        return API_KEY;
+    }
+
+    public OkHttpClient getClient() {
+        return client;
+    }
 }
+
+
 
 
 

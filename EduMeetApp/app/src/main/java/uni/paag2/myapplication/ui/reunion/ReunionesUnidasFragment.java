@@ -3,6 +3,7 @@ package uni.paag2.myapplication.ui.reunion;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,24 +34,30 @@ public class ReunionesUnidasFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_mis_reuniones, container, false);
         recyclerReuniones = root.findViewById(R.id.recyclerReuniones);
         recyclerReuniones.setLayoutManager(new LinearLayoutManager(getContext()));
-        reunionAdapter = new ReunionAdapter(listaReuniones, this::editarReunión);
+        reunionAdapter = new ReunionAdapter(listaReuniones, this::editarReunion);
         recyclerReuniones.setAdapter(reunionAdapter);
 
+        // Obtener el ID del profesor de SharedPreferences
         SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         idProfesor = prefs.getInt("id_profesor", -1);
+
+        // Verificar si el id_profesor se recuperó correctamente
+        Log.d("ReunionesUnidasFragment", "ID Profesor: " + idProfesor);
 
         if (idProfesor == -1) {
             Toast.makeText(requireContext(), "No se ha iniciado sesión correctamente", Toast.LENGTH_LONG).show();
             return root;
         }
+
+        // Si todo está correcto, cargar las reuniones
         cargarReunionesUnidas();
+
         return root;
     }
 
     private void cargarReunionesUnidas() {
         SupabaseHelper helper = new SupabaseHelper();
         // Este método debe implementar la lógica para obtener las reuniones en las que el profesor se ha unido
-        // utilizando, por ejemplo, un filtro "unirme = true" en la tabla profesor_reunion.
         helper.obtenerReunionesUnidasPorProfesor(idProfesor, new SupabaseHelper.ReunionesCallback() {
             @Override
             public void onSuccess(List<Reunion> reuniones) {
@@ -63,15 +70,15 @@ public class ReunionesUnidasFragment extends Fragment {
 
             @Override
             public void onFailure(String error) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(getContext(), "Error al obtener reuniones unidas: " + error, Toast.LENGTH_LONG).show()
-                );
+                requireActivity().runOnUiThread(() -> {
+                    Toast.makeText(getContext(), "Error al obtener reuniones unidas: " + error, Toast.LENGTH_LONG).show();
+                });
             }
         });
     }
 
-    private void editarReunión(Reunion reunion) {
+    private void editarReunion(Reunion reunion) {
         ReunionDialogFragment dialog = ReunionDialogFragment.nuevaParaEditar(reunion);
-        dialog.show(getParentFragmentManager(), "EditarReunión");
+        dialog.show(getParentFragmentManager(), "EditarReunion");
     }
 }

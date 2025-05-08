@@ -47,6 +47,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
         TextView tvTema, tvFecha, tvHora, tvSala, tvParticipantes;
         Button btnUnirse;
         boolean estaUnido = false;
+        private HorarioManager horarioManager;
 
         public ViewHolder(View view) {
             super(view);
@@ -64,6 +65,9 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
             tvHora.setText("Hora: " + reunion.getHoraInicio());
             tvSala.setText("Sala: " + reunion.getSala());
 
+            // Inicializar el HorarioManager
+            horarioManager = new HorarioManager(itemView.getContext(), supabaseUrl, supabaseKey);
+
             // Obtener el ID del profesor actual (puedes obtenerlo de SharedPreferences o de tu sistema de sesión)
             int idProfesor = obtenerIdProfesorActual();
 
@@ -79,7 +83,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                     salirDeReunion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey);
                 } else {
                     // Si no está unido, unirse a la reunión
-                    unirseAReunion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey);
+                    unirseAReunion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey, reunion);
                 }
             });
         }
@@ -170,7 +174,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
             });
         }
 
-        private void unirseAReunion(int idProfesor, int idReunion, OkHttpClient client, String supabaseUrl, String supabaseKey) {
+        private void unirseAReunion(int idProfesor, int idReunion, OkHttpClient client, String supabaseUrl, String supabaseKey, Reunion reunion) {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 String fechaActual = sdf.format(new Date());
@@ -214,6 +218,9 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                                 btnUnirse.setText("Salir");
                                 Toast.makeText(itemView.getContext(), "Te has unido a la reunión", Toast.LENGTH_SHORT).show();
                                 obtenerParticipantes(idReunion, client, supabaseUrl, supabaseKey);
+
+                                // Llamar al método para buscar horarios disponibles
+                                buscarYActualizarHorario(idReunion);
                             });
                         } else {
                             itemView.post(() -> {
@@ -229,70 +236,92 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
             }
         }
 
+        private void buscarYActualizarHorario(int idReunion) {
+            // Mostrar mensaje de procesamiento
+            Toast.makeText(itemView.getContext(), "Buscando horarios disponibles para todos...", Toast.LENGTH_SHORT).show();
+
+            // Llamar al HorarioManager para buscar horarios libres
+            horarioManager.buscarHorarioDisponible(idReunion, new HorarioManager.HorarioCallback() {
+                @Override
+                public void onSuccess(String nuevoHorario) {
+                    itemView.post(() -> {
+                        if (nuevoHorario != null) {
+                            // Mostrar el nuevo horario
+                            String horaFormateada = nuevoHorario.substring(0, 5);
+                            tvHora.setText("Hora: " + horaFormateada + " (actualizada)");
+                            Toast.makeText(itemView.getContext(), "Horario actualizado a: " + horaFormateada, Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(itemView.getContext(), "No se encontraron horarios disponibles para todos", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(String error) {
+                    itemView.post(() -> {
+                        Toast.makeText(itemView.getContext(), "Error al buscar horario: " + error, Toast.LENGTH_SHORT).show();
+                    });
+                }
+            });
+        }
 
         private void salirDeReunion(int idProfesor, int idReunion, OkHttpClient client, String supabaseUrl, String supabaseKey) {
+            String url = supabaseUrl + "/rest/v1/profesor_reunion?id_profesor=eq." + idProfesor + "&id_reunion=eq." + idReunion;
+
+            // Crear el cuerpo de la petición para actualizar el campo 'unirme' a false
+            JSONObject jsonObject = new JSONObject();
             try {
-                // Crear el objeto JSON con los datos de actualización
-                JSONObject jsonObject = new JSONObject();
                 jsonObject.put("unirme", false);
+            } catch (Exception e) {
+                itemView.post(() -> Toast.makeText(itemView.getContext(), "Error al preparar salida: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                return;
+            }
 
-                // Crear la solicitud PATCH
-                RequestBody body = RequestBody.create(
-                        MediaType.parse("application/json"),
-                        jsonObject.toString()
-                );
+            RequestBody body = RequestBody.create(
+                    MediaType.parse("application/json"),
+                    jsonObject.toString()
+            );
 
-                String url = supabaseUrl + "/rest/v1/profesor_reunion?id_profesor=eq." + idProfesor +
-                        "&id_reunion=eq." + idReunion;
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("apikey", supabaseKey)
+                    .addHeader("Authorization", "Bearer " + supabaseKey)
+                    .addHeader("Content-Type", "application/json")
+                    .method("PATCH", body)
+                    .build();
 
-                Request request = new Request.Builder()
-                        .url(url)
-                        .addHeader("apikey", supabaseKey)
-                        .addHeader("Authorization", "Bearer " + supabaseKey)
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Prefer", "return=minimal")
-                        .patch(body)
-                        .build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, java.io.IOException e) {
+                    itemView.post(() -> {
+                        Toast.makeText(itemView.getContext(), "Error al salir: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
+                }
 
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, java.io.IOException e) {
+                @Override
+                public void onResponse(Call call, Response response) throws java.io.IOException {
+                    if (response.isSuccessful()) {
                         itemView.post(() -> {
-                            Toast.makeText(itemView.getContext(), "Error al salir: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            estaUnido = false;
+                            btnUnirse.setText("Unirse");
+                            Toast.makeText(itemView.getContext(), "Has salido de la reunión", Toast.LENGTH_SHORT).show();
+                            obtenerParticipantes(idReunion, client, supabaseUrl, supabaseKey);
+                        });
+                    } else {
+                        itemView.post(() -> {
+                            Toast.makeText(itemView.getContext(), "Error al salir: " + response.code(), Toast.LENGTH_SHORT).show();
                         });
                     }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws java.io.IOException {
-                        if (response.isSuccessful()) {
-                            itemView.post(() -> {
-                                estaUnido = false;
-                                btnUnirse.setText("Unirse");
-                                Toast.makeText(itemView.getContext(), "Has salido de la reunión", Toast.LENGTH_SHORT).show();
-                                // Actualizar la lista de participantes
-                                obtenerParticipantes(idReunion, client, supabaseUrl, supabaseKey);
-                            });
-                        } else {
-                            itemView.post(() -> {
-                                Toast.makeText(itemView.getContext(), "Error al salir: " + response.code(), Toast.LENGTH_SHORT).show();
-                            });
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                itemView.post(() -> {
-                    Toast.makeText(itemView.getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
-            }
+                }
+            });
         }
     }
 
     @NonNull
     @Override
     public ReunionCardAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.card_reunion, parent, false);
-        return new ViewHolder(view);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_reunion, parent, false);
+        return new ViewHolder(itemView);
     }
 
     @Override
