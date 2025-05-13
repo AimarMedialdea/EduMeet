@@ -1,5 +1,6 @@
 package uni.paag2.myapplication.ui.reunion;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,16 +47,20 @@ public class ReunionAdapter extends RecyclerView.Adapter<ReunionAdapter.ViewHold
             sala.setText(reunion.getSala());
             itemView.setOnClickListener(v -> listener.onClick(reunion));
 
-            participantes.setText("Cargando pyarticipantes...");
+            Log.d("ReunionAdapter", "ID de reunión: " + reunion.getIdReunion());
+            participantes.setText("Cargando participantes...");
+
             helper.obtenerParticipantesPorReunion(reunion.getIdReunion(), new SupabaseHelper.ParticipantesCallback() {
                 @Override
                 public void onSuccess(List<String> nombres) {
                     String texto = nombres.size() + ": " + String.join(", ", nombres);
+                    Log.d("ReunionAdapter", "Participantes reunión " + reunion.getIdReunion() + ": " + texto);
                     itemView.post(() -> participantes.setText(texto));
                 }
 
                 @Override
                 public void onFailure(String error) {
+                    Log.e("ReunionAdapter", "Error al cargar participantes: " + error);
                     itemView.post(() -> participantes.setText("Error al cargar participantes"));
                 }
             });

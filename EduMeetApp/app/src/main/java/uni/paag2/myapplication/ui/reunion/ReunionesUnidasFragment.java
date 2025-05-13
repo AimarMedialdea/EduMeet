@@ -25,6 +25,7 @@ public class ReunionesUnidasFragment extends Fragment {
     private ReunionAdapter reunionAdapter;
     private List<Reunion> listaReuniones = new ArrayList<>();
     private int idProfesor;
+    private SupabaseHelper supabaseHelper = new SupabaseHelper();
 
     @Nullable
     @Override
@@ -34,15 +35,12 @@ public class ReunionesUnidasFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_mis_reuniones, container, false);
         recyclerReuniones = root.findViewById(R.id.recyclerReuniones);
         recyclerReuniones.setLayoutManager(new LinearLayoutManager(getContext()));
-        reunionAdapter = new ReunionAdapter(listaReuniones, this::editarReunion);
+        reunionAdapter = new ReunionAdapter(listaReuniones, this::verReunion);
         recyclerReuniones.setAdapter(reunionAdapter);
 
         // Obtener el ID del profesor de SharedPreferences
         SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         idProfesor = prefs.getInt("id_profesor", -1);
-
-        // Verificar si el id_profesor se recuperó correctamente
-        Log.d("ReunionesUnidasFragment", "ID Profesor: " + idProfesor);
 
         if (idProfesor == -1) {
             Toast.makeText(requireContext(), "No se ha iniciado sesión correctamente", Toast.LENGTH_LONG).show();
@@ -55,30 +53,65 @@ public class ReunionesUnidasFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Recargar las reuniones cada vez que el fragmento vuelve a estar visible
+        if (idProfesor != -1) {
+            cargarReunionesUnidas();
+        }
+    }
+
     private void cargarReunionesUnidas() {
-        SupabaseHelper helper = new SupabaseHelper();
-        // Este método debe implementar la lógica para obtener las reuniones en las que el profesor se ha unido
-        helper.obtenerReunionesUnidasPorProfesor(idProfesor, new SupabaseHelper.ReunionesCallback() {
+
+        supabaseHelper.obtenerReunionesUnidasPorProfesor(idProfesor, new SupabaseHelper.ReunionesCallback() {
             @Override
             public void onSuccess(List<Reunion> reuniones) {
-                requireActivity().runOnUiThread(() -> {
-                    listaReuniones.clear();
-                    listaReuniones.addAll(reuniones);
-                    reunionAdapter.notifyDataSetChanged();
-                });
+                // Verificar que el fragmento siga adjunto a una actividad
+                if (isAdded() && getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        try {
+                            listaReuniones.clear();
+                            listaReuniones.addAll(reuniones);
+                            reunionAdapter.notifyDataSetChanged();
+
+                            // Log para depuración
+                            Log.d("ReunionesUnidasFragment", "Reuniones unidas cargadas: " + reuniones.size());
+                            for (Reunion r : reuniones) {
+                                Log.d("ReunionesUnidasFragment", "Reunión: " + r.getTema() + ", ID: " + r.getIdReunion());
+                            }
+
+                            // Mostrar mensaje si no hay reuniones
+                            if (reuniones.isEmpty() && getContext() != null) {
+                                Toast.makeText(getContext(), "No hay reuniones a las que te hayas unido", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (Exception e) {
+                            Log.e("ReunionesUnidasFragment", "Error al actualizar UI: " + e.getMessage(), e);
+                            if (getContext() != null) {
+                                Toast.makeText(getContext(), "Error al actualizar la interfaz", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+                    Log.e("ReunionesUnidasFragment", "El fragmento no está adjunto a una actividad");
+                }
             }
 
             @Override
             public void onFailure(String error) {
-                requireActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Error al obtener reuniones unidas: " + error, Toast.LENGTH_LONG).show();
-                });
+                if (isAdded() && getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        Log.e("ReunionesUnidasFragment", "Error al cargar reuniones: " + error);
+                        if (getContext() != null) {
+                            Toast.makeText(getContext(), "Error al cargar reuniones: " + error, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
             }
         });
     }
 
-    private void editarReunion(Reunion reunion) {
-        ReunionDialogFragment dialog = ReunionDialogFragment.nuevaParaEditar(reunion);
-        dialog.show(getParentFragmentManager(), "EditarReunion");
+    private void verReunion(Reunion reunion) {
+        // lógica para ver los detalles de la reunión
     }
 }

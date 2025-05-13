@@ -69,9 +69,9 @@ public class ReunionDialogFragment extends DialogFragment {
             horaTextView.setText(getArguments().getString("hora"));
 
             String sala = getArguments().getString("sala");
-            ArrayAdapter adapter = (ArrayAdapter) salaSpinner.getAdapter();
-            int pos = adapter.getPosition(sala);
-            salaSpinner.setSelection(pos);
+            //ArrayAdapter adapter = (ArrayAdapter) salaSpinner.getAdapter();
+            //int pos = adapter.getPosition(sala);
+            //salaSpinner.setSelection(pos);
         }
 
         btnGuardar.setOnClickListener(v -> guardarReunion());
@@ -91,7 +91,7 @@ public class ReunionDialogFragment extends DialogFragment {
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     salaSpinner.setAdapter(adapter);
 
-                    // Si estamos editando, seleccionamos el aula correspondiente
+                    // 🔄 Solo aquí puedes obtener la posición
                     if (getArguments() != null) {
                         String sala = getArguments().getString("sala");
                         int pos = adapter.getPosition(sala);
@@ -156,7 +156,7 @@ public class ReunionDialogFragment extends DialogFragment {
             @Override
             public void onFailure(String error) {
                 getActivity().runOnUiThread(() -> {
-                    Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error de formato cambia fecha o hora", Toast.LENGTH_LONG).show();
                 });
             }
         };
@@ -169,7 +169,6 @@ public class ReunionDialogFragment extends DialogFragment {
         args.putInt("id_reunion", reunion.getIdReunion());
         args.putString("tema", reunion.getTema());
         args.putString("fecha", reunion.getFecha());
-        args.putString("hora", reunion.getHoraInicio());
         args.putString("sala", reunion.getSala());
 
         fragment.setArguments(args);

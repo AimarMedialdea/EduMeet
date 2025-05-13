@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         TextView emailTextView = headerView.findViewById(R.id.emailU);
 
         // Obtener el email del profesor desde SharedPreferences
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String email = sharedPreferences.getString("user_email", "");
 
         if (!email.isEmpty()) {

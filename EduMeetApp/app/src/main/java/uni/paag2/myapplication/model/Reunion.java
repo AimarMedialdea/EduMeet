@@ -6,7 +6,7 @@ public class Reunion {
     private String fecha;
     private String hora_inicio;
     private String sala;
-    private int id_profesor; // ← Añadido
+    private int id_profesor;
 
     // Constructor
     public Reunion(int id_reunion, String tema, String fecha, String hora_inicio, String sala, int id_profesor) {
@@ -18,7 +18,7 @@ public class Reunion {
         this.id_profesor = id_profesor;
     }
 
-    // Constructor vacío (por si lo necesitas)
+    // Constructor vacío
     public Reunion() {}
 
     // Getters

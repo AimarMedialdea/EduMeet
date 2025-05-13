@@ -49,6 +49,8 @@ public class SupabaseHelper {
     public void obtenerParticipantesPorReunion(int idReunion, ParticipantesCallback callback) {
         new Thread(() -> {
             try {
+                Log.d("SupabaseHelper", "Obteniendo participantes para reunión ID: " + idReunion);
+
                 String url = BASE_URL + "profesor_reunion?id_reunion=eq." + idReunion + "&unirme=eq.true&select=id_profesor(nombre)";
                 Request request = new Request.Builder()
                         .url(url)
@@ -64,18 +66,26 @@ public class SupabaseHelper {
                     JSONArray jsonArray = new JSONArray(responseBody);
                     List<String> participantes = new ArrayList<>();
 
+                    Log.d("SupabaseHelper", "Respuesta recibida con " + jsonArray.length() + " participantes");
+
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject obj = jsonArray.getJSONObject(i);
                         JSONObject profesor = obj.getJSONObject("id_profesor");
-                        participantes.add(profesor.getString("nombre"));
+                        String nombre = profesor.getString("nombre");
+                        participantes.add(nombre);
+                        Log.d("SupabaseHelper", "Participante añadido: " + nombre);
                     }
 
                     callback.onSuccess(participantes);
                 } else {
-                    callback.onFailure("HTTP Error: " + response.code());
+                    String errorMsg = "HTTP Error: " + response.code();
+                    Log.e("SupabaseHelper", errorMsg);
+                    callback.onFailure(errorMsg);
                 }
             } catch (Exception e) {
-                callback.onFailure("Excepción: " + e.getMessage());
+                String errorMsg = "Excepción al obtener participantes: " + e.getMessage();
+                Log.e("SupabaseHelper", errorMsg, e);
+                callback.onFailure(errorMsg);
             }
         }).start();
     }
@@ -117,6 +127,7 @@ public class SupabaseHelper {
 
     // Método para insertar una reunión con múltiples participantes
     public void insertarReunion(String tema, String fecha, String hora, String sala, int idProfesor, SupabaseCallback callback) {
+        boolean finished = false;
         String url = BASE_URL + "reunion";
 
         JSONObject json = new JSONObject();
@@ -128,35 +139,37 @@ public class SupabaseHelper {
             json.put("id_profesor", idProfesor);    // ID del profesor desde SharedPreferences
         } catch (Exception e) {
             callback.onFailure("Error al crear JSON de reunión: " + e.getMessage());
-            return;
+            finished = true;
+        }
+        if (!finished) {
+            RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
+            Request request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .addHeader("apikey", API_KEY)
+                    .addHeader("Authorization", "Bearer " + API_KEY)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Prefer", "return=representation")
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.onFailure("Error de conexión: " + e.getMessage());
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseData = response.body() != null ? response.body().string() : "";
+                    if (response.isSuccessful()) {
+                        callback.onSuccess("Reunión insertada correctamente");
+                    } else {
+                        callback.onFailure("Error al insertar reunión: " + response.code() + " - " + responseData);
+                    }
+                }
+            });
         }
 
-        RequestBody body = RequestBody.create(json.toString(), MediaType.parse("application/json"));
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .addHeader("apikey", API_KEY)
-                .addHeader("Authorization", "Bearer " + API_KEY)
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Prefer", "return=representation")
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                callback.onFailure("Error de conexión: " + e.getMessage());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String responseData = response.body() != null ? response.body().string() : "";
-                if (response.isSuccessful()) {
-                    callback.onSuccess("Reunión insertada correctamente");
-                } else {
-                    callback.onFailure("Error al insertar reunión: " + response.code() + " - " + responseData);
-                }
-            }
-        });
     }
 
 
@@ -621,7 +634,7 @@ public class SupabaseHelper {
             return;
         }
 
-        String url = BASE_URL + "/reunion?id=eq." + idReunion;
+        String url = BASE_URL + "/reunion?id_reunion=eq." + idReunion;
         Request request = new Request.Builder()
                 .url(url)
                 .patch(RequestBody.create(reunionJson.toString(), MediaType.parse("application/json")))
@@ -811,17 +824,32 @@ public class SupabaseHelper {
                     JSONObject jsonReunion = reunionWrapper.getJSONObject("reunion");
 
                     Reunion reunion = new Reunion();
-                    reunion.setIdReunion(jsonReunion.getInt("id_profesor"));
+                    // Corregir aquí: estabas asignando id_profesor a idReunion
+                    reunion.setIdReunion(jsonReunion.getInt("id_reunion"));
                     reunion.setTema(jsonReunion.getString("tema"));
                     reunion.setFecha(jsonReunion.getString("fecha"));
                     reunion.setHoraInicio(jsonReunion.getString("hora_inicio"));
                     reunion.setSala(jsonReunion.getString("sala"));
+
+                    // Asignar el id_profesor si está disponible en la respuesta
+                    if (jsonReunion.has("id_profesor")) {
+                        reunion.setIdProfesor(jsonReunion.getInt("id_profesor"));
+                    }
+
                     reuniones.add(reunion);
+
+                    // Log para depuración
+                    Log.d("SupabaseHelper", "Añadida reunión: ID=" + reunion.getIdReunion() +
+                            ", Tema=" + reunion.getTema());
                 }
+
+                // Log para depuración
+                Log.d("SupabaseHelper", "Total reuniones unidas cargadas: " + reuniones.size());
 
                 callback.onSuccess(reuniones);
 
             } catch (Exception e) {
+                Log.e("SupabaseHelper", "Error en obtenerReunionesUnidasPorProfesor: " + e.getMessage(), e);
                 callback.onFailure("Excepción: " + e.getMessage());
             }
         });

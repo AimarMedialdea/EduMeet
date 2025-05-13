@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,34 +54,30 @@ public class LogInSupa extends AppCompatActivity {
         supabaseHelper.loginUser(email, password, LogInSupa.this, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
-                try {
-                    JSONObject jsonResponse = new JSONObject(response);
+                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("user_email", email);
 
-                    SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("user_email", email);
+                try {
+                    // Intentar parsear como JSON
+                    JSONObject jsonResponse = new JSONObject(response);
 
                     if (jsonResponse.has("access_token")) {
                         String accessToken = jsonResponse.getString("access_token");
                         editor.putString("access_token", accessToken);
+                        Log.d("LOGIN", "Access token guardado.");
                     }
 
-                    editor.apply();
-                    Log.d("LOGIN", "Email guardado en SharedPreferences: " + email);
-
-                    // Obtener el ID del profesor después del login exitoso
-                    obtenerIdProfesor(email);
-
                 } catch (JSONException e) {
-                    Log.e("LOGIN", "Error al parsear respuesta JSON: " + e.getMessage());
-                    SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("user_email", email);
-                    editor.apply();
-
-                    // También intenta obtener el ID del profesor aunque falle el parseo
-                    obtenerIdProfesor(email);
+                    // Si no es JSON, asumimos que fue solo un texto como "Login correcto"
+                    Log.d("LOGIN", "Respuesta no es JSON. Login aparentemente exitoso: " + response);
                 }
+
+                editor.apply();
+                Log.d("LOGIN", "Email guardado en SharedPreferences: " + email);
+
+                // Obtener el ID del profesor por email
+                obtenerIdProfesor(email);
 
                 runOnUiThread(() -> {
                     Toast.makeText(LogInSupa.this, "Login exitoso", Toast.LENGTH_SHORT).show();
@@ -103,11 +100,16 @@ public class LogInSupa extends AppCompatActivity {
         supabaseHelper.obtenerIdProfesorPorEmail(email, LogInSupa.this, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String idProfesor) {
-                SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putInt("id_profesor", Integer.parseInt(idProfesor));
-                editor.apply();
-                Log.d("LOGIN", "ID profesor guardado en SharedPreferences: " + idProfesor);
+                try {
+                    int id = Integer.parseInt(idProfesor);
+                    SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putInt("id_profesor", id);
+                    editor.apply();
+                    Log.d("LOGIN", "ID profesor guardado en SharedPreferences: " + idProfesor);
+                } catch (NumberFormatException e) {
+                    Log.e("LOGIN", "Error al convertir id_profesor a entero: " + idProfesor);
+                }
             }
 
             @Override
