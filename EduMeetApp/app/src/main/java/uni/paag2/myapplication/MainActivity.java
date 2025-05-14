@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                     dialog.show(getSupportFragmentManager(), "ReunionDialog");
                 });
             } else {
-                fab.hide(); // ✅ Oculta el botón en cualquier otro destino
+                fab.hide();
             }
 
         });

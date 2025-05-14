@@ -35,9 +35,12 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
 
     private final List<Reunion> reuniones;
     private final OkHttpClient client = new OkHttpClient();
-    // Modifica estas constantes con tus valores reales de Supabase
-    private final String SUPABASE_URL = "https://trjiewwhjoeytkdwkvlm.supabase.co";
-    private final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyamlld3doam9leXRrZHdrdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTY1ODQsImV4cCI6MjA1OTA3MjU4NH0.YS6EF001LPQq4RyJEGLLbQc8DSu4lidDRQMAjbjBOrw";
+
+    //private final String SUPABASE_URL = "https://trjiewwhjoeytkdwkvlm.supabase.co";
+    //private final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyamlld3doam9leXRrZHdrdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTY1ODQsImV4cCI6MjA1OTA3MjU4NH0.YS6EF001LPQq4RyJEGLLbQc8DSu4lidDRQMAjbjBOrw";
+
+    private static final String SUPABASE_URL = "https://rcuaqjifuulykomjaqsm.supabase.co";
+    private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjdWFxamlmdXVseWtvbWphcXNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMzIzNDMsImV4cCI6MjA2MjcwODM0M30.guxrteiy7duERkbR2osDbRVRdCUcOw3kIyI8B1B7RDY";
 
     public ReunionCardAdapter(List<Reunion> reuniones) {
         this.reuniones = reuniones;
@@ -68,7 +71,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
             // Inicializar el HorarioManager
             horarioManager = new HorarioManager(itemView.getContext(), supabaseUrl, supabaseKey);
 
-            // Obtener el ID del profesor actual (puedes obtenerlo de SharedPreferences o de tu sistema de sesión)
+            // Obtener el ID del profesor actual
             int idProfesor = obtenerIdProfesorActual();
 
             // Verificar si el profesor ya está unido a esta reunión
