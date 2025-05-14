@@ -11,9 +11,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
+
+import uni.paag2.myapplication.BaseActivity;
 import uni.paag2.myapplication.R;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends BaseActivity {
 
     private SupabaseHelper supabaseHelper;
     private EditText editTextNombre;

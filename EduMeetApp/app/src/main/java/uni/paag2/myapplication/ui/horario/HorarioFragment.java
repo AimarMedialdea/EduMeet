@@ -21,10 +21,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.*;
+
+import uni.paag2.myapplication.BaseFragment;
 import uni.paag2.myapplication.R;
 import uni.paag2.myapplication.supabase.SupabaseHelper;
 
-public class HorarioFragment extends Fragment {
+public class HorarioFragment extends BaseFragment {
 
     private Spinner spinnerAsignaturas, spinnerDia;
     private Button btnHoraInicio, btnHoraFin, btnGuardar;

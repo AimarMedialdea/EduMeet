@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import uni.paag2.myapplication.BaseFragment;
 import uni.paag2.myapplication.R;
 import uni.paag2.myapplication.databinding.FragmentHomeBinding;
 import uni.paag2.myapplication.model.Reunion;
@@ -27,7 +28,7 @@ import uni.paag2.myapplication.supabase.SupabaseHelper;
 import uni.paag2.myapplication.ui.reunion.ReunionAdapter;
 import uni.paag2.myapplication.ui.reunion.ReunionCardAdapter;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
 
     private RecyclerView recyclerView;
     private ReunionCardAdapter adapter;

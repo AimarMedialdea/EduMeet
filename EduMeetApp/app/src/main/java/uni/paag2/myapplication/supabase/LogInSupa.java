@@ -14,10 +14,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import uni.paag2.myapplication.BaseActivity;
 import uni.paag2.myapplication.MainActivity;
 import uni.paag2.myapplication.R;
 
-public class LogInSupa extends AppCompatActivity {
+public class LogInSupa extends BaseActivity {
     private SupabaseHelper supabaseHelper;
     private EditText editTextEmail;
     private EditText editTextPassword;

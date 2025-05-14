@@ -3,23 +3,46 @@ package uni.paag2.myapplication;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Locale;
 
 public class BaseActivity extends AppCompatActivity {
+
     @Override
     protected void attachBaseContext(Context newBase) {
-        SharedPreferences prefs = newBase.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-        String lang = prefs.getString("app_lang", "es");
+        Context context = updateBaseContextLocale(newBase);
+        super.attachBaseContext(context);
+    }
 
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        updateLocale();
+    }
+
+    protected void updateLocale() {
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String lang = prefs.getString("app_lang", "eu");
         Locale locale = new Locale(lang);
         Locale.setDefault(locale);
 
-        Configuration config = newBase.getResources().getConfiguration();
+        Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+    }
+
+    protected Context updateBaseContextLocale(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        String lang = prefs.getString("app_lang", "eu");
+        Locale locale = new Locale(lang);
+        Locale.setDefault(locale);
+
+        Configuration config = new Configuration();
         config.setLocale(locale);
 
-        Context context = newBase.createConfigurationContext(config);
-        super.attachBaseContext(context);
+        return context.createConfigurationContext(config);
     }
 }

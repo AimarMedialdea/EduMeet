@@ -18,11 +18,12 @@
     import java.util.ArrayList;
     import java.util.List;
 
+    import uni.paag2.myapplication.BaseFragment;
     import uni.paag2.myapplication.R;
     import uni.paag2.myapplication.model.Reunion;
     import uni.paag2.myapplication.supabase.SupabaseHelper;
 
-    public class MisReunionesFragment extends Fragment {
+    public class MisReunionesFragment extends BaseFragment {
 
         private RecyclerView recyclerReuniones;
         private ReunionAdapter reunionAdapter;

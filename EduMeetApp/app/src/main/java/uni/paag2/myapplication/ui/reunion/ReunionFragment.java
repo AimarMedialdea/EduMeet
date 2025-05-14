@@ -11,9 +11,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import uni.paag2.myapplication.BaseFragment;
 import uni.paag2.myapplication.R;
 
-public class ReunionFragment extends Fragment {
+public class ReunionFragment extends BaseFragment {
 
     @Nullable
     @Override

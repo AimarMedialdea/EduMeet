@@ -1,8 +1,11 @@
 package uni.paag2.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,19 +21,19 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Locale;
 import java.util.Map;
 
 import uni.paag2.myapplication.databinding.ActivityMainBinding;
 import uni.paag2.myapplication.supabase.SupabaseHelper;
 import uni.paag2.myapplication.ui.reunion.ReunionDialogFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
@@ -122,6 +125,28 @@ public class MainActivity extends AppCompatActivity {
 
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        recreate(); // Recrear la actividad para aplicar cambios de idioma
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(updateBaseContextLocale(newBase));
+    }
+
+    @Override
+    public void applyOverrideConfiguration(Configuration overrideConfiguration) {
+        if (overrideConfiguration != null) {
+            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+            String lang = prefs.getString("app_lang", "eu");
+            Locale locale = new Locale(lang);
+            overrideConfiguration.setLocale(locale);
+        }
+        super.applyOverrideConfiguration(overrideConfiguration);
     }
 
     private void verificarSharedPreferences() {

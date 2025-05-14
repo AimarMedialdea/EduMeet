@@ -15,11 +15,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+
+import uni.paag2.myapplication.BaseFragment;
 import uni.paag2.myapplication.R;
 import uni.paag2.myapplication.model.Reunion;
 import uni.paag2.myapplication.supabase.SupabaseHelper;
 
-public class ReunionesUnidasFragment extends Fragment {
+public class ReunionesUnidasFragment extends BaseFragment {
 
     private RecyclerView recyclerReuniones;
     private ReunionAdapter reunionAdapter;
