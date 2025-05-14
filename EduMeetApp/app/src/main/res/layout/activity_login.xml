@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:hint="pass"
+        android:hint="@string/contraseña"
         android:inputType="textPassword"
         android:text="a" />
 
@@ -35,7 +35,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:text="¿No tiene cuenta? registrate!"
+        android:text="@string/noCuenta"
         android:textColor="@android:color/holo_blue_dark" />
 
 </LinearLayout>

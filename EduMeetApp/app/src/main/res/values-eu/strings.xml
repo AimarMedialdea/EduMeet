@@ -1,29 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EduMeet</string>
-    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
-    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
-    <string name="nav_header_title" translatable="false">Android Studio</string>
-    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
-    <string name="nav_header_desc" translatable="false">Navigation header</string>
     <string name="action_settings">Ezarpenak</string>
-
     <string name="menu_home">Hasiera</string>
     <string name="menu_reuniones">Bilerak</string>
     <string name="menu_horario">Ordutegia</string>
-
-    <!-- ✅ Esta línea soluciona el error -->
-
-    <string-array name="dias_semana">
-        <item>lunes</item>
-        <item>martes</item>
-        <item>miercoles</item>
-        <item>jueves</item>
-        <item>viernes</item>
-    </string-array>
     <string name="fecha">"Data: "</string>
     <string name="hora">"Ordua: "</string>
     <string name="sala">"Ikasgela: "</string>
-    <string name="participantes">Partaideak:</string>
+    <string name="participantes">"Partaideak: "</string>
     <string name="salir">IRTEN</string>
     <string name="misReuniones">Nire Bilerak</string>
     <string name="horaInicio">AUTATU HASTEKO ORDUA</string>
@@ -32,7 +17,7 @@
     <string name="select_asignatura">Gai bat autatu</string>
     <string name="guardarhorario">ORDUTEGIA GORDE</string>
     <string name="bilera">Bilera</string>
-    <string name="tema">Gaia:</string>
+    <string name="tema">"Gaia: "</string>
     <string name="rTema">Idatzi bileraren gaia</string>
     <string name="guardar">GORDE</string>
     <string name="unirse">BATU</string>

@@ -22,27 +22,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#009688"
-        android:text="Seleccionar Hora Inicio" />
+        android:text="@string/horaInicio" />
+
 
     <Button
         android:id="@+id/btn_hora_fin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#009688"
-        android:text="Seleccionar Hora Fin" />
+        android:text="@string/horaFin" />
 
     <Button
         android:id="@+id/btn_guardar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#009688"
-        android:text="Guardar Horario" />
+        android:text="@string/guardarhorario" />
 
     <TextView
         android:id="@+id/titulo_horario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mi Horario"
+        android:text="@string/miHorario"
         android:textStyle="bold"
         android:textSize="18sp"
         android:paddingTop="16dp" />

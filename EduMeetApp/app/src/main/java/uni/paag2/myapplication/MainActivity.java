@@ -1,22 +1,23 @@
 package uni.paag2.myapplication;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import org.json.JSONArray;
@@ -62,9 +63,8 @@ public class MainActivity extends AppCompatActivity {
         String email = sharedPreferences.getString("user_email", "");
 
         if (!email.isEmpty()) {
-            // Muestra valores temporales mientras se carga
             nombreTextView.setText("Cargando...");
-            emailTextView.setText(email); // Mostrar el email inmediatamente
+            emailTextView.setText(email);
 
             SupabaseHelper supabaseHelper = new SupabaseHelper();
             supabaseHelper.obtenerDatosProfesorPorEmail(email, new SupabaseHelper.SupabaseCallback() {
@@ -72,47 +72,30 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(String responseData) {
                     try {
                         JSONArray jsonArray = new JSONArray(responseData);
-                        Log.d("SUPABASE", "Respuesta: " + responseData);
-
                         if (jsonArray.length() > 0) {
                             JSONObject profesor = jsonArray.getJSONObject(0);
                             String nombre = profesor.getString("nombre");
-                            // Guardar el ID del profesor para futuras referencias
                             if (profesor.has("id_profesor")) {
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putInt("id_profesor", profesor.getInt("id_profesor"));
                                 editor.apply();
                             }
-
-                            runOnUiThread(() -> {
-                                nombreTextView.setText(nombre);
-                                Log.d("UI", "Nombre actualizado: " + nombre);
-                            });
+                            runOnUiThread(() -> nombreTextView.setText(nombre));
                         } else {
-                            runOnUiThread(() -> {
-                                nombreTextView.setText("Usuario");
-                                Log.e("SUPABASE", "No se encontraron datos para el profesor con email: " + email);
-                            });
+                            runOnUiThread(() -> nombreTextView.setText("Usuario"));
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Log.e("JSON", "Error al parsear JSON: " + e.getMessage());
-                        runOnUiThread(() -> {
-                            nombreTextView.setText("Error");
-                        });
+                        runOnUiThread(() -> nombreTextView.setText("Error"));
                     }
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
-                    Log.e("SUPABASE", "Error al obtener datos: " + errorMessage);
-                    runOnUiThread(() -> {
-                        nombreTextView.setText("Error");
-                    });
+                    runOnUiThread(() -> nombreTextView.setText("Error"));
                 }
             });
         } else {
-            Log.e("SESIÓN", "Email del profesor no encontrado en SharedPreferences");
             nombreTextView.setText("Invitado");
             emailTextView.setText("No hay sesión iniciada");
             Toast.makeText(this, "No se encontró información de sesión", Toast.LENGTH_LONG).show();
@@ -125,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
 
-        // Configura el comportamiento del FAB según el destino de navegación
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.nav_reunion) {
                 fab.show();
@@ -136,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 fab.hide();
             }
-
         });
 
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
@@ -145,20 +126,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void verificarSharedPreferences() {
         SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-
-        // Obtener todos los valores guardados para depuración
         Map<String, ?> allEntries = sharedPreferences.getAll();
-
         Log.d("SHARED_PREFS", "Contenido de SharedPreferences:");
         if (allEntries.isEmpty()) {
-            Log.d("SHARED_PREFS", "No hay datos guardados en SharedPreferences");
+            Log.d("SHARED_PREFS", "No hay datos guardados");
         } else {
             for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
                 Log.d("SHARED_PREFS", entry.getKey() + ": " + entry.getValue().toString());
             }
         }
-
-        // Verificar específicamente el ID del profesor
         if (sharedPreferences.contains("id_profesor")) {
             int idProfesor = sharedPreferences.getInt("id_profesor", -1);
             Log.d("SHARED_PREFS", "ID del profesor encontrado: " + idProfesor);
@@ -171,6 +147,17 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
+    }
+
+    // Redirige al Settings.java cuando se selecciona el ítem del menú
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, Settings.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

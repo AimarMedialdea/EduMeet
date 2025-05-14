@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">EduMeet</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="menu_home">Inicio</string>
+    <string name="menu_reuniones">Reuniones</string>
+    <string name="menu_horario">Horario</string>
+    <string name="fecha">"Fecha: "</string>
+    <string name="hora">"Hora: "</string>
+    <string name="sala">"Aula: "</string>
+    <string name="participantes">"Participantes: "</string>
+    <string name="salir">SALIR</string>
+    <string name="misReuniones">Mis Reuniones</string>
+    <string name="horaInicio">SELECCIONAR HORA INICIO</string>
+    <string name="horaFin">SELECCIONAR HORA FIN</string>
+    <string name="miHorario">Mi Horario</string>
+    <string name="select_asignatura">Seleccione asignatura</string>
+    <string name="guardarhorario">GUARDAR HORARIO</string>
+    <string name="bilera">Reunion</string>
+    <string name="tema">"Tema: "</string>
+    <string name="rTema">Escribe el tema de la reunion</string>
+    <string name="guardar">GUARDAR</string>
+    <string name="unirse">UNIRSE</string>
+    <string name="cerrarS">CERRAR SESION</string>
+    <string name="cambiarIdioma">CAMBIAR IDIOMA</string>
+    <string name="nombre">Nombre</string>
+    <string name="contraseña">Contraseña</string>
+    <string name="confContraseña">Confirmar Contraseña</string>
+    <string name="registrarse">REGISTRARSE</string>
+    <string name="iniciarS">INICIAR SESION</string>
+    <string name="noCuenta">¿No tienes cuenta? Registrate!</string>
+</resources>

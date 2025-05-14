@@ -2,10 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_mis_reuniones"
-        android:title="Mis Reuniones"
+        android:title="@string/menu_reuniones"
         android:icon="@drawable/ic_mis_reuniones"/>
     <item
         android:id="@+id/menu_reuniones_unidas"
-        android:title="Reuniones Unidades"
+        android:title="@string/misReuniones"
         android:icon="@drawable/ic_reuniones_unidas"/>
 </menu>

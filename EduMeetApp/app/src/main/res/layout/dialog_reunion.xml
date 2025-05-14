@@ -10,7 +10,7 @@
         android:id="@+id/tituloDialogo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nueva Reunión"
+        android:text="@string/bilera"
         android:textSize="18sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -23,7 +23,7 @@
         android:id="@+id/temaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tema:"
+        android:text="@string/tema"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tituloDialogo"
         app:layout_constraintBaseline_toBaselineOf="@id/temaEditText"/>
@@ -33,7 +33,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:hint="Escribe el tema de la reunión"
+        android:hint="@string/rTema"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/temaLabel"
         app:layout_constraintTop_toBottomOf="@id/tituloDialogo" />
@@ -42,7 +42,7 @@
         android:id="@+id/fechaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Fecha:"
+        android:text="@string/fecha"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/temaEditText"/>
@@ -63,7 +63,7 @@
         android:id="@+id/horaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hora:"
+        android:text="@string/hora"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/fechaEditText"/>
@@ -84,7 +84,7 @@
         android:id="@+id/salaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sala:"
+        android:text="@string/sala"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/horaEditText"
@@ -106,7 +106,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:backgroundTint="#009688"
-        android:text="Guardar"
+        android:text="@string/guardar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/salaSpinner" />

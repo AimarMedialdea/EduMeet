@@ -27,7 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Fecha y hora"
+            android:text="@string/fecha"
             android:textSize="14sp"
             android:textColor="#444444" />
 
@@ -36,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Sala"
+            android:text="@string/sala"
             android:textSize="14sp"
             android:textColor="#666666" />
 
@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Participantes"
+            android:text="@string/participantes"
             android:textSize="14sp"
             android:textColor="#555555" />
     </LinearLayout>

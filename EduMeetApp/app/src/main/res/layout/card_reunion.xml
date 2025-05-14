@@ -16,7 +16,7 @@
             android:id="@+id/tvTema"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tema"
+            android:text="@string/tema"
             android:textStyle="bold"
             android:textSize="18sp" />
 
@@ -24,25 +24,25 @@
             android:id="@+id/tvFecha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fecha: " />
+            android:text="@string/fecha" />
 
         <TextView
             android:id="@+id/tvHora"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hora: " />
+            android:text="@string/hora" />
 
         <TextView
             android:id="@+id/tvSala"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sala: " />
+            android:text="@string/sala" />
 
         <TextView
             android:id="@+id/tvParticipantes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Participantes: " />
+            android:text="@string/participantes" />
 
         <Button
             android:id="@+id/btnUnirse"
@@ -50,6 +50,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:backgroundTint="#009688"
-            android:text="Unirse" />
+            android:text="@string/unirse" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

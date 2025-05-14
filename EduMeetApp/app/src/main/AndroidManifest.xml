@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.USE_CREDENTIALS"/>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-    <!-- Permiso duplicado que podrías eliminar -->
-    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
 
     <application
         android:allowBackup="true"
@@ -20,12 +19,12 @@
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
 
-        <!-- Agrega esta metadata para AdMob -->
+        <!-- AdMob metadata -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5724620181079597~4763075779"/>
+            android:value="ca-app-pub-5724620181079597~4763075779" />
 
-        <!-- Actividad principal (LogInSupa) -->
+        <!-- LogInSupa (Launcher) -->
         <activity
             android:name=".supabase.LogInSupa"
             android:exported="true"
@@ -37,18 +36,25 @@
             </intent-filter>
         </activity>
 
-        <!-- Actividad de registro -->
+        <!-- Register Activity -->
         <activity
             android:name=".supabase.RegisterActivity"
             android:exported="true"
-            android:label="Register Activity"/>
+            android:label="Register Activity" />
 
-        <!-- MainActivity no se usa como lanzador, pero sigue aquí si la necesitas -->
+        <!-- MainActivity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.EduMeet.NoActionBar"/>
+            android:theme="@style/Theme.EduMeet.NoActionBar" />
+
+        <!-- Settings Activity -->
+        <activity
+            android:name=".Settings"
+            android:exported="true"
+            android:label="Settings"
+            android:theme="@style/Theme.EduMeet.NoActionBar" />
 
     </application>
 </manifest>
