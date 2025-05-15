@@ -48,7 +48,7 @@ public class LogInSupa extends BaseActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.login_campos_vacios), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -60,28 +60,23 @@ public class LogInSupa extends BaseActivity {
                 editor.putString("user_email", email);
 
                 try {
-                    // Intentar parsear como JSON
                     JSONObject jsonResponse = new JSONObject(response);
-
                     if (jsonResponse.has("access_token")) {
                         String accessToken = jsonResponse.getString("access_token");
                         editor.putString("access_token", accessToken);
                         Log.d("LOGIN", "Access token guardado.");
                     }
-
                 } catch (JSONException e) {
-                    // Si no es JSON, asumimos que fue solo un texto como "Login correcto"
                     Log.d("LOGIN", "Respuesta no es JSON. Login aparentemente exitoso: " + response);
                 }
 
                 editor.apply();
                 Log.d("LOGIN", "Email guardado en SharedPreferences: " + email);
 
-                // Obtener el ID del profesor por email
                 obtenerIdProfesor(email);
 
                 runOnUiThread(() -> {
-                    Toast.makeText(LogInSupa.this, "Login exitoso", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LogInSupa.this, getString(R.string.login_exito), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(LogInSupa.this, MainActivity.class);
                     startActivity(intent);
                     finish();
@@ -91,7 +86,7 @@ public class LogInSupa extends BaseActivity {
             @Override
             public void onFailure(String error) {
                 runOnUiThread(() ->
-                        Toast.makeText(LogInSupa.this, error, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(LogInSupa.this, getString(R.string.login_error_generico, error), Toast.LENGTH_SHORT).show()
                 );
             }
         });

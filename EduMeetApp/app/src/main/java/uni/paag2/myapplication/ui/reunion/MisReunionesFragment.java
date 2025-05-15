@@ -35,18 +35,17 @@
         public View onCreateView(@NonNull LayoutInflater inflater,
                                  @Nullable ViewGroup container,
                                  @Nullable Bundle savedInstanceState) {
-            View root = inflater.inflate(R.layout.fragment_mis_reuniones, container, false); // Asegúrate de que sea el layout correcto
+            View root = inflater.inflate(R.layout.fragment_mis_reuniones, container, false);
             recyclerReuniones = root.findViewById(R.id.recyclerReuniones);
             recyclerReuniones.setLayoutManager(new LinearLayoutManager(getContext()));
             reunionAdapter = new ReunionAdapter(listaReuniones, this::editarReunion);
             recyclerReuniones.setAdapter(reunionAdapter);
 
-            // Obtener ID del profesor
             SharedPreferences prefs = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
             idProfesor = prefs.getInt("id_profesor", -1);
 
             if (idProfesor == -1) {
-                Toast.makeText(requireContext(), "No se ha iniciado sesión correctamente", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), getString(R.string.misreuniones_error_sesion), Toast.LENGTH_LONG).show();
                 return root;
             }
 
@@ -60,7 +59,6 @@
             helper.obtenerReunionesPorProfesor(idProfesor, new SupabaseHelper.ReunionesCallback() {
                 @Override
                 public void onSuccess(List<Reunion> reuniones) {
-                    // Verifica que el fragmento esté adjunto antes de intentar actualizar la UI
                     if (isAdded() && getActivity() != null) {
                         requireActivity().runOnUiThread(() -> {
                             listaReuniones.clear();
@@ -74,10 +72,10 @@
 
                 @Override
                 public void onFailure(String error) {
-                    // Verifica que el fragmento esté adjunto antes de mostrar el mensaje de error
                     if (isAdded()) {
                         requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "Error al obtener reuniones: " + error, Toast.LENGTH_LONG).show();
+                            String mensaje = getString(R.string.misreuniones_error_carga) + ": " + error;
+                            Toast.makeText(getContext(), mensaje, Toast.LENGTH_LONG).show();
                         });
                     }
                 }
@@ -89,3 +87,4 @@
             dialog.show(getParentFragmentManager(), "EditarReunion");
         }
     }
+

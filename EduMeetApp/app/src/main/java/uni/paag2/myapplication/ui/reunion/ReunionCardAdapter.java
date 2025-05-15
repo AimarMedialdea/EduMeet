@@ -36,8 +36,10 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
     private final List<Reunion> reuniones;
     private final OkHttpClient client = new OkHttpClient();
 
+
     //private final String SUPABASE_URL = "https://trjiewwhjoeytkdwkvlm.supabase.co";
     //private final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyamlld3doam9leXRrZHdrdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTY1ODQsImV4cCI6MjA1OTA3MjU4NH0.YS6EF001LPQq4RyJEGLLbQc8DSu4lidDRQMAjbjBOrw";
+
 
     private static final String SUPABASE_URL = "https://rcuaqjifuulykomjaqsm.supabase.co";
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjdWFxamlmdXVseWtvbWphcXNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMzIzNDMsImV4cCI6MjA2MjcwODM0M30.guxrteiy7duERkbR2osDbRVRdCUcOw3kIyI8B1B7RDY";
@@ -63,40 +65,33 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
         }
 
         public void bind(Reunion reunion, OkHttpClient client, String supabaseUrl, String supabaseKey) {
-            tvTema.setText(reunion.getTema());
-            tvFecha.setText("Fecha: " + reunion.getFecha());
-            tvHora.setText("Hora: " + reunion.getHoraInicio());
-            tvSala.setText("Sala: " + reunion.getSala());
+            Context context = itemView.getContext();
 
-            // Inicializar el HorarioManager
-            horarioManager = new HorarioManager(itemView.getContext(), supabaseUrl, supabaseKey);
+            tvTema.setText(context.getString(R.string.tema) + " " + reunion.getTema());
+            tvFecha.setText(context.getString(R.string.fecha) + reunion.getFecha());
+            tvHora.setText(context.getString(R.string.hora) + reunion.getHoraInicio());
+            tvSala.setText(context.getString(R.string.sala) + reunion.getSala());
 
-            // Obtener el ID del profesor actual
+            horarioManager = new HorarioManager(context, supabaseUrl, supabaseKey);
+
             int idProfesor = obtenerIdProfesorActual();
 
-            // Verificar si el profesor ya está unido a esta reunión
             verificarParticipacion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey);
-
-            // Obtener participantes de la reunión
             obtenerParticipantes(reunion.getIdReunion(), client, supabaseUrl, supabaseKey);
 
             btnUnirse.setOnClickListener(v -> {
                 if (estaUnido) {
-                    // Si ya está unido, salirse de la reunión
                     salirDeReunion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey);
                 } else {
-                    // Si no está unido, unirse a la reunión
                     unirseAReunion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey, reunion);
                 }
             });
         }
 
-        // Método para obtener el ID del profesor actual (desde SharedPreferences o tu sistema de sesión)
         private int obtenerIdProfesorActual() {
             SharedPreferences prefs = itemView.getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-            return prefs.getInt("id_profesor", -1); // -1 si no se ha iniciado sesión correctamente
+            return prefs.getInt("id_profesor", -1);
         }
-
 
         private void verificarParticipacion(int idProfesor, int idReunion, OkHttpClient client, String supabaseUrl, String supabaseKey) {
             String url = supabaseUrl + "/rest/v1/profesor_reunion?id_profesor=eq." + idProfesor +
@@ -119,14 +114,11 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                     if (response.isSuccessful()) {
                         String responseData = response.body().string();
                         try {
-                            // Si hay resultados, significa que el profesor ya está unido
                             JSONArray jsonArray = new JSONArray(responseData);
                             final boolean participando = jsonArray.length() > 0;
-
-                            // Actualizar la UI en el hilo principal
                             itemView.post(() -> {
                                 estaUnido = participando;
-                                btnUnirse.setText(participando ? "Salir" : "Unirse");
+                                btnUnirse.setText(itemView.getContext().getString(participando ? R.string.salir : R.string.unirse));
                             });
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -157,17 +149,11 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                     if (response.isSuccessful()) {
                         String responseData = response.body().string();
                         try {
-                            // Contar el número de profesores unidos
                             JSONArray jsonArray = new JSONArray(responseData);
                             final int numParticipantes = jsonArray.length();
-
-                            // Actualizar la UI en el hilo principal
                             itemView.post(() -> {
-                                if (numParticipantes > 0) {
-                                    tvParticipantes.setText("Participantes: " + numParticipantes);
-                                } else {
-                                    tvParticipantes.setText("Participantes: (ninguno)");
-                                }
+                                tvParticipantes.setText(itemView.getContext().getString(R.string.participantes) + " " +
+                                        (numParticipantes > 0 ? numParticipantes : "(0)"));
                             });
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -201,7 +187,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                         .addHeader("apikey", supabaseKey)
                         .addHeader("Authorization", "Bearer " + supabaseKey)
                         .addHeader("Content-Type", "application/json")
-                        .addHeader("Prefer", "resolution=merge-duplicates") // Habilita UPSERT
+                        .addHeader("Prefer", "resolution=merge-duplicates")
                         .post(body)
                         .build();
 
@@ -209,7 +195,8 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                     @Override
                     public void onFailure(Call call, java.io.IOException e) {
                         itemView.post(() -> {
-                            Toast.makeText(itemView.getContext(), "Error al unirse: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            String err = itemView.getContext().getString(R.string.unido_error) + " " + e.getMessage();
+                            Toast.makeText(itemView.getContext(), err, Toast.LENGTH_SHORT).show();
                         });
                     }
 
@@ -218,52 +205,48 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                         if (response.isSuccessful()) {
                             itemView.post(() -> {
                                 estaUnido = true;
-                                btnUnirse.setText("Salir");
-                                Toast.makeText(itemView.getContext(), "Te has unido a la reunión", Toast.LENGTH_SHORT).show();
+                                btnUnirse.setText(itemView.getContext().getString(R.string.salir));
+                                Toast.makeText(itemView.getContext(), itemView.getContext().getString(R.string.unido_exito), Toast.LENGTH_SHORT).show();
                                 obtenerParticipantes(idReunion, client, supabaseUrl, supabaseKey);
-
-                                // Llamar al método para buscar horarios disponibles
                                 buscarYActualizarHorario(idReunion);
                             });
                         } else {
                             itemView.post(() -> {
-                                Toast.makeText(itemView.getContext(), "Error al unirse: " + response.code(), Toast.LENGTH_SHORT).show();
+                                String err = itemView.getContext().getString(R.string.unido_error) + " " + response.code();
+                                Toast.makeText(itemView.getContext(), err, Toast.LENGTH_SHORT).show();
                             });
                         }
                     }
                 });
             } catch (Exception e) {
                 itemView.post(() -> {
-                    Toast.makeText(itemView.getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    String err = itemView.getContext().getString(R.string.unido_error) + " " + e.getMessage();
+                    Toast.makeText(itemView.getContext(), err, Toast.LENGTH_SHORT).show();
                 });
             }
         }
 
         private void buscarYActualizarHorario(int idReunion) {
-            // Mostrar mensaje de procesamiento
-            Toast.makeText(itemView.getContext(), "Buscando horarios disponibles para todos...", Toast.LENGTH_SHORT).show();
+            Context context = itemView.getContext();
+            Toast.makeText(context, context.getString(R.string.buscando_horario), Toast.LENGTH_SHORT).show();
 
-            // Llamar al HorarioManager para buscar horarios libres
             horarioManager.buscarHorarioDisponible(idReunion, new HorarioManager.HorarioCallback() {
                 @Override
                 public void onSuccess(String nuevoHorario) {
                     itemView.post(() -> {
                         if (nuevoHorario != null) {
-                            // Mostrar el nuevo horario
                             String horaFormateada = nuevoHorario.substring(0, 5);
-                            tvHora.setText("Hora: " + horaFormateada + " (actualizada)");
-                            Toast.makeText(itemView.getContext(), "Horario actualizado a: " + horaFormateada, Toast.LENGTH_LONG).show();
+                            tvHora.setText(context.getString(R.string.hora) + horaFormateada + " (eguneratua)");
+                            Toast.makeText(context, context.getString(R.string.horario_exito) + " " + horaFormateada, Toast.LENGTH_LONG).show();
                         } else {
-                            Toast.makeText(itemView.getContext(), "No se encontraron horarios disponibles para todos", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context, context.getString(R.string.horario_no_encontrado), Toast.LENGTH_LONG).show();
                         }
                     });
                 }
 
                 @Override
                 public void onFailure(String error) {
-                    itemView.post(() -> {
-                        Toast.makeText(itemView.getContext(), "Error al buscar horario: " + error, Toast.LENGTH_SHORT).show();
-                    });
+                    itemView.post(() -> Toast.makeText(context, context.getString(R.string.horario_error) + " " + error, Toast.LENGTH_SHORT).show());
                 }
             });
         }
@@ -271,12 +254,14 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
         private void salirDeReunion(int idProfesor, int idReunion, OkHttpClient client, String supabaseUrl, String supabaseKey) {
             String url = supabaseUrl + "/rest/v1/profesor_reunion?id_profesor=eq." + idProfesor + "&id_reunion=eq." + idReunion;
 
-            // Crear el cuerpo de la petición para actualizar el campo 'unirme' a false
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("unirme", false);
             } catch (Exception e) {
-                itemView.post(() -> Toast.makeText(itemView.getContext(), "Error al preparar salida: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                itemView.post(() -> {
+                    String err = itemView.getContext().getString(R.string.salida_preparar_error) + " " + e.getMessage();
+                    Toast.makeText(itemView.getContext(), err, Toast.LENGTH_SHORT).show();
+                });
                 return;
             }
 
@@ -297,7 +282,8 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                 @Override
                 public void onFailure(Call call, java.io.IOException e) {
                     itemView.post(() -> {
-                        Toast.makeText(itemView.getContext(), "Error al salir: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        String err = itemView.getContext().getString(R.string.salida_error) + ": " + e.getMessage();
+                        Toast.makeText(itemView.getContext(), err, Toast.LENGTH_SHORT).show();
                     });
                 }
 
@@ -306,13 +292,14 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                     if (response.isSuccessful()) {
                         itemView.post(() -> {
                             estaUnido = false;
-                            btnUnirse.setText("Unirse");
-                            Toast.makeText(itemView.getContext(), "Has salido de la reunión", Toast.LENGTH_SHORT).show();
+                            btnUnirse.setText(itemView.getContext().getString(R.string.unirse));
+                            Toast.makeText(itemView.getContext(), itemView.getContext().getString(R.string.salida_exito), Toast.LENGTH_SHORT).show();
                             obtenerParticipantes(idReunion, client, supabaseUrl, supabaseKey);
                         });
                     } else {
                         itemView.post(() -> {
-                            Toast.makeText(itemView.getContext(), "Error al salir: " + response.code(), Toast.LENGTH_SHORT).show();
+                            String err = itemView.getContext().getString(R.string.salida_error) + " " + response.code();
+                            Toast.makeText(itemView.getContext(), err, Toast.LENGTH_SHORT).show();
                         });
                     }
                 }
@@ -322,13 +309,13 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
 
     @NonNull
     @Override
-    public ReunionCardAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_reunion, parent, false);
         return new ViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ReunionCardAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(reuniones.get(position), client, SUPABASE_URL, SUPABASE_KEY);
     }
 

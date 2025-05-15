@@ -44,4 +44,24 @@
     <string name="registrarse">ERREGISTRATU</string>
     <string name="iniciarS">SAIOA HASI</string>
     <string name="noCuenta">¿Ez al duzu konturik? izena eman!</string>
+    <string name="salida_exito">Irten zara bileratik</string>
+    <string name="entrada_exito">Errorea irtetean</string>
+    <string name="salida_error">errore bat gertatu da</string>
+    <string name="unido_error">Errorea bilerara batzean:</string>
+    <string name="unido_exito">Arrakastaz batu zara bileran.</string>
+    <string name="buscando_horario">Ordu berria bilatzen...</string>
+    <string name="horario_exito">Ordutegia eguneratua honetara:</string>
+    <string name="horario_no_encontrado">Ez da ordutegi alternatiborik aurkitu.</string>
+    <string name="horario_error">Errorea ordutegia bilatzean:</string>
+    <string name="salida_preparar_error">Errorea bileratik irteteko prestaketan:</string>
+    <string name="misreuniones_error_sesion">Ez da saioa behar bezala hasi</string>
+    <string name="misreuniones_error_carga">Errorea bilerak lortzean</string>
+    <string name="reunionesunidas_error_sesion">Ez da saioa behar bezala hasi</string>
+    <string name="reunionesunidas_no_hay">Ez zaude bilera bakar batean ere izena emanda</string>
+    <string name="reunionesunidas_error_ui">Errorea interfazea eguneratzean</string>
+    <string name="reunionesunidas_error_carga">Errorea bilerak kargatzean</string>
+    <string name="login_campos_vacios">Bete dena mezedez</string>
+    <string name="login_exito">Saio-Hasia</string>
+    <string name="login_error_generico">Saioa hasterakoan errorea: %1$s</string>
+
 </resources>

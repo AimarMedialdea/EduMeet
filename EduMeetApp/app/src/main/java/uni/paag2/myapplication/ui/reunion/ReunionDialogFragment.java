@@ -67,11 +67,7 @@ public class ReunionDialogFragment extends DialogFragment {
             temaEditText.setText(getArguments().getString("tema"));
             fechaTextView.setText(getArguments().getString("fecha"));
             horaTextView.setText(getArguments().getString("hora"));
-
             String sala = getArguments().getString("sala");
-            //ArrayAdapter adapter = (ArrayAdapter) salaSpinner.getAdapter();
-            //int pos = adapter.getPosition(sala);
-            //salaSpinner.setSelection(pos);
         }
 
         btnGuardar.setOnClickListener(v -> guardarReunion());
