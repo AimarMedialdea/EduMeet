@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import okhttp3.*;
 import uni.paag2.myapplication.model.Reunion;
 
@@ -949,6 +951,66 @@ public class SupabaseHelper {
     public OkHttpClient getClient() {
         return client;
     }
+
+
+    public void borrarReunion(int idReunion, SupabaseCallback callback) {
+        String url = BASE_URL + "reunion?id_reunion=eq." + idReunion;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Prefer", "return=representation") // ayuda a que devuelva algo útil
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.body() != null ? response.body().string() : "");
+                } else {
+                    callback.onFailure("Error: " + response.code() + " - " + response.message());
+                }
+            }
+        });
+    }
+
+    public void borrarRelacionesReunion(int idReunion, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor_reunion?id_reunion=eq." + idReunion;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                callback.onFailure(e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    callback.onSuccess(response.body() != null ? response.body().string() : "");
+                } else {
+                    callback.onFailure("Error al borrar relaciones: " + response.code());
+                }
+            }
+        });
+    }
+
+
 }
 
 
