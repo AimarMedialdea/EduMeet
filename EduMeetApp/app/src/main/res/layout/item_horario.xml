@@ -21,7 +21,7 @@
             android:text="Asignatura"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="#000000"/>
+            android:textColor="#7F7C70"/>
 
         <TextView
             android:id="@+id/tv_dia_hora"
@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:text="Lunes - 08:00 a 09:00"
             android:textSize="16sp"
-            android:textColor="#666666"
+            android:textColor="#7F7C70"
             android:layout_marginTop="4dp"/>
 
     </LinearLayout>

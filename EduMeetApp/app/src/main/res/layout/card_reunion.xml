@@ -17,39 +17,44 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/tema"
-            android:textStyle="bold"
-            android:textSize="18sp" />
+            android:textColor="#7F7C70"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tvFecha"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fecha" />
+            android:text="@string/fecha"
+            android:textColor="#7F7C70" />
 
         <TextView
             android:id="@+id/tvHora"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hora" />
+            android:text="@string/hora"
+            android:textColor="#7F7C70" />
 
         <TextView
             android:id="@+id/tvSala"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/sala" />
+            android:text="@string/sala"
+            android:textColor="#7F7C70" />
 
         <TextView
             android:id="@+id/tvParticipantes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/participantes" />
+            android:text="@string/participantes"
+            android:textColor="#7F7C70" />
 
         <Button
             android:id="@+id/btnUnirse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:backgroundTint="#009688"
+            android:backgroundTint="#7655A3"
             android:text="@string/unirse" />
     </LinearLayout>
 </androidx.cardview.widget.CardView>

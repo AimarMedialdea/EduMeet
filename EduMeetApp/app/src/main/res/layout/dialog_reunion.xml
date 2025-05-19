@@ -10,23 +10,24 @@
         android:id="@+id/tituloDialogo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="@string/bilera"
+        android:textColor="#7655A3"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/temaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/tema"
+        android:textColor="#7F7C70"
+        app:layout_constraintBaseline_toBaselineOf="@id/temaEditText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tituloDialogo"
-        app:layout_constraintBaseline_toBaselineOf="@id/temaEditText"/>
+        app:layout_constraintTop_toBottomOf="@id/tituloDialogo" />
 
     <EditText
         android:id="@+id/temaEditText"
@@ -34,6 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:hint="@string/rTema"
+        android:textColor="#7F7C70"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/temaLabel"
         app:layout_constraintTop_toBottomOf="@id/tituloDialogo" />
@@ -42,53 +44,58 @@
         android:id="@+id/fechaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/fecha"
         android:layout_marginTop="16dp"
+        android:text="@string/fecha"
+        android:textColor="#7F7C70"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/temaEditText"/>
+        app:layout_constraintTop_toBottomOf="@id/temaEditText" />
 
     <EditText
         android:id="@+id/fechaEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:hint="YYYY-MM-DD"
         android:inputType="date"
-        android:layout_marginStart="8dp"
-        app:layout_constraintTop_toBottomOf="@id/temaEditText"
-        app:layout_constraintStart_toEndOf="@id/fechaLabel"
+        android:textColor="#7F7C70"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toEndOf="@id/fechaLabel"
+        app:layout_constraintTop_toBottomOf="@id/temaEditText" />
 
     <TextView
         android:id="@+id/horaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/hora"
         android:layout_marginTop="16dp"
+        android:text="@string/hora"
+        android:textColor="#7F7C70"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/fechaEditText"/>
+        app:layout_constraintTop_toBottomOf="@id/fechaEditText" />
 
     <EditText
         android:id="@+id/horaEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:hint="HH:MM"
         android:inputType="time"
-        android:layout_marginStart="8dp"
-        app:layout_constraintTop_toBottomOf="@id/fechaEditText"
-        app:layout_constraintStart_toEndOf="@id/horaLabel"
+        android:textColor="#7F7C70"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toEndOf="@id/horaLabel"
+        app:layout_constraintTop_toBottomOf="@id/fechaEditText" />
 
     <TextView
         android:id="@+id/salaLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sala"
         android:layout_marginTop="16dp"
+        android:text="@string/sala"
+        android:textColor="#7F7C70"
+        app:layout_constraintBaseline_toBaselineOf="@id/salaSpinner"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/horaEditText"
-        app:layout_constraintBaseline_toBaselineOf="@id/salaSpinner"/>
+        app:layout_constraintTop_toBottomOf="@id/horaEditText" />
 
     <Spinner
         android:id="@+id/salaSpinner"
@@ -105,7 +112,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:backgroundTint="#009688"
+        android:backgroundTint="#7655A3"
         android:text="@string/guardar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
