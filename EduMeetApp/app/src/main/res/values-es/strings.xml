@@ -39,8 +39,6 @@
     <string name="horario_no_encontrado">No se encontró un horario alternativo.</string>
     <string name="horario_error">Error al buscar horario:</string>
     <string name="salida_preparar_error">Error al preparar la salida de la reunión:</string>
-    <string name="misreuniones_error_sesion">No se ha iniciado sesion correctamente</string>
-    <string name="misreuniones_error_carga">Error al cargar reuniones</string>
     <string name="reunionesunidas_error_sesion">No se ha iniciado sesión correctamente</string>
     <string name="reunionesunidas_no_hay">No hay reuniones a las que te hayas unido</string>
     <string name="reunionesunidas_error_ui">Error al actualizar la interfaz</string>
@@ -48,5 +46,50 @@
     <string name="login_campos_vacios">Por favor complete todos los campos</string>
     <string name="login_exito">Login exitoso</string>
     <string name="login_error_generico">Error al iniciar sesión: %1$s</string>
+    <string name="misreuniones_dialogo_titulo">Eliminar reunión</string>
+    <string name="misreuniones_dialogo_mensaje">¿Estás seguro de que quieres eliminar esta reunión?</string>
+    <string name="misreuniones_eliminada">Reunión eliminada</string>
+    <string name="misreuniones_error_eliminar">Error al eliminar reunión</string>
+    <string name="misreuniones_error_eliminar_relaciones">Error al eliminar relaciones</string>
+    <string name="misreuniones_error_sesion">No se ha podido obtener el ID del profesor</string>
+    <string name="misreuniones_error_carga">Error al cargar reuniones</string>
+    <string name="horario_dialogo_titulo">Eliminar horario</string>
+    <string name="horario_dialogo_mensaje">¿Estás seguro de que quieres eliminar este horario?</string>
+    <string name="horario_eliminado">Horario eliminado correctamente</string>
+    <string name="horario_error_eliminar">Error al eliminar horario</string>
+    <string name="horario_error_id_invalido">Error: ID de profesor no válido</string>
+    <string name="horario_error_login">Error: No se ha iniciado sesión correctamente</string>
+    <string name="horario_error_carga_asignaturas">Error cargando asignaturas</string>
+    <string name="horario_error_guardar">Error al guardar horario</string>
+    <string name="horario_seleccionar_asignatura">Debes seleccionar una asignatura</string>
+    <string name="horario_inicio_hora">Inicio: %1$s</string>
+    <string name="horario_fin_hora">Fin: %1$s</string>
+    <string name="horario_guardado">Horario guardado</string>
+    <string name="error_sesion">Error: no se ha podido recuperar la sesión</string>
+    <string name="titulo_eliminar_horario">Eliminar horario</string>
+    <string name="confirmacion_eliminar_horario">¿Estás seguro de que quieres eliminar este horario?</string>
+    <string name="si">Sí</string>
+    <string name="no">No</string>
+    <string name="error_eliminar_horario">Error al eliminar horario: %1$s</string>
+    <string name="asignatura_desconocida">Asignatura desconocida</string>
+    <string name="error_cargar_asignaturas">Error al cargar asignaturas</string>
+    <string name="debes_seleccionar_asignatura">Debes seleccionar una asignatura</string>
+    <string name="error_guardar_horario">Error al guardar el horario</string>
+    <string name="inicio">Inicio:</string>
+    <string name="fin">Fin:</string>
+    <string name="error_id_profesor">Error: ID del profesor inválido</string>
+    <string name="asignatura">Asignatura</string>
+    <string name="error_cargar_horario">Error al cargar el horario</string>
 
+    <!-- Dias -->
+    <string name="lunes">lunes</string>
+    <string name="martes">martes</string>
+    <string name="miercoles">miércoles</string>
+    <string name="jueves">jueves</string>
+    <string name="viernes">viernes</string>
+
+    <!-- Genéricos -->
+    <string name="general_no">No</string>
+    <string name="general_si">Sí</string>
+    <string name="general_cancelar">Cancelar</string>
 </resources>

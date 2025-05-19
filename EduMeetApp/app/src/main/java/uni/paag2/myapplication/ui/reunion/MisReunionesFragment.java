@@ -57,9 +57,9 @@ public class MisReunionesFragment extends BaseFragment {
                         final Reunion r = listaReuniones.get(pos);
 
                         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                                .setTitle("Confirmar eliminación")
-                                .setMessage("¿Estás seguro de que quieres eliminar esta reunión?")
-                                .setPositiveButton("Sí", (dialog, which) -> {
+                                .setTitle(R.string.misreuniones_dialogo_titulo)
+                                .setMessage(R.string.misreuniones_dialogo_mensaje)
+                                .setPositiveButton(R.string.general_si, (dialog, which) -> {
                                     SupabaseHelper helper = new SupabaseHelper();
 
                                     helper.borrarRelacionesReunion(r.getIdReunion(), new SupabaseHelper.SupabaseCallback() {
@@ -73,7 +73,8 @@ public class MisReunionesFragment extends BaseFragment {
                                                         listaReuniones.remove(pos);
                                                         reunionAdapter.notifyItemRemoved(pos);
                                                         Toast.makeText(getContext(),
-                                                                "Reunión eliminada", Toast.LENGTH_SHORT).show();
+                                                                R.string.misreuniones_eliminada,
+                                                                Toast.LENGTH_SHORT).show();
                                                     });
                                                 }
 
@@ -83,7 +84,7 @@ public class MisReunionesFragment extends BaseFragment {
                                                     requireActivity().runOnUiThread(() -> {
                                                         reunionAdapter.notifyItemChanged(pos);
                                                         Toast.makeText(getContext(),
-                                                                "Error al eliminar reunión: " + error,
+                                                                getString(R.string.misreuniones_error_eliminar) + ": " + error,
                                                                 Toast.LENGTH_LONG).show();
                                                     });
                                                 }
@@ -96,14 +97,13 @@ public class MisReunionesFragment extends BaseFragment {
                                             requireActivity().runOnUiThread(() -> {
                                                 reunionAdapter.notifyItemChanged(pos);
                                                 Toast.makeText(getContext(),
-                                                        "Error al eliminar relaciones: " + error,
+                                                        getString(R.string.misreuniones_error_eliminar_relaciones) + ": " + error,
                                                         Toast.LENGTH_LONG).show();
                                             });
                                         }
                                     });
                                 })
-                                .setNegativeButton("Cancelar", (dialog, which) -> {
-                                    // Cancelar: restaurar el ítem en la lista
+                                .setNegativeButton(R.string.general_cancelar, (dialog, which) -> {
                                     reunionAdapter.notifyItemChanged(pos);
                                     dialog.dismiss();
                                 })
@@ -114,7 +114,6 @@ public class MisReunionesFragment extends BaseFragment {
                 };
         new ItemTouchHelper(swipeCallback).attachToRecyclerView(recyclerReuniones);
 
-        // Carga normal de reuniones
         SharedPreferences prefs = requireContext()
                 .getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
         idProfesor = prefs.getInt("id_profesor", -1);
