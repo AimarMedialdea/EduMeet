@@ -37,12 +37,12 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
     private final OkHttpClient client = new OkHttpClient();
 
 
-    //private final String SUPABASE_URL = "https://trjiewwhjoeytkdwkvlm.supabase.co";
-    //private final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyamlld3doam9leXRrZHdrdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTY1ODQsImV4cCI6MjA1OTA3MjU4NH0.YS6EF001LPQq4RyJEGLLbQc8DSu4lidDRQMAjbjBOrw";
+    private final String SUPABASE_URL = "https://trjiewwhjoeytkdwkvlm.supabase.co";
+    private final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRyamlld3doam9leXRrZHdrdmxtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0OTY1ODQsImV4cCI6MjA1OTA3MjU4NH0.YS6EF001LPQq4RyJEGLLbQc8DSu4lidDRQMAjbjBOrw";
 
 
-    private static final String SUPABASE_URL = "https://rcuaqjifuulykomjaqsm.supabase.co";
-    private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjdWFxamlmdXVseWtvbWphcXNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMzIzNDMsImV4cCI6MjA2MjcwODM0M30.guxrteiy7duERkbR2osDbRVRdCUcOw3kIyI8B1B7RDY";
+    //private static final String SUPABASE_URL = "https://rcuaqjifuulykomjaqsm.supabase.co";
+    //private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjdWFxamlmdXVseWtvbWphcXNtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMzIzNDMsImV4cCI6MjA2MjcwODM0M30.guxrteiy7duERkbR2osDbRVRdCUcOw3kIyI8B1B7RDY";
 
     public ReunionCardAdapter(List<Reunion> reuniones) {
         this.reuniones = reuniones;
