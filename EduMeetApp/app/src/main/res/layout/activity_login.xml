@@ -10,9 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:hint="@string/usuario"
+        android:hint="@string/email"
         android:inputType="textEmailAddress"
-        android:text="a"
         android:textColor="#7F7C70 " />
 
     <EditText
@@ -22,7 +21,6 @@
         android:layout_marginBottom="16dp"
         android:hint="@string/contraseña"
         android:inputType="textPassword"
-        android:text="Holamundo1"
         android:textColor="#7F7C70 " />
 
     <Button

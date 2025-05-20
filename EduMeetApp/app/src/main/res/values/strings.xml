@@ -11,8 +11,6 @@
     <string name="menu_reuniones">Bilerak</string>
     <string name="menu_horario">Ordutegia</string>
 
-    <!-- ✅ Esta línea soluciona el error -->
-
     <string-array name="dias_semana">
         <item>lunes</item>
         <item>martes</item>
@@ -121,5 +119,6 @@
     <string name="general_no">Ez</string>
     <string name="general_si">Bai</string>
     <string name="general_cancelar">Utzi</string>
+    <string name="email" translatable="false">email</string>
 
 </resources>
