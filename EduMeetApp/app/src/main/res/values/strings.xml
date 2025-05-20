@@ -95,6 +95,19 @@
     <string name="error_id_profesor">Errorea: irakaslearen ID baliogabea</string>
     <string name="asignatura">Gaia</string>
     <string name="error_cargar_horario">Errorea ordutegia kargatzean</string>
+    <string name="usuario">Erabiltzaile izena</string>
+    <string name="error_fill_all_fields">Mesedez, bete ezazu eremu guztiak</string>
+    <string name="login_successful">Saioa arrakastaz hasi da</string>
+    <string name="error_incorrect_password">Pasahitza ez da zuzena</string>
+    <string name="error_user_not_found">Erabiltzailea ez da aurkitu</string>
+    <string name="error_processing_response">Errorea erantzuna prozesatzerakoan</string>
+    <string name="error_generic">Errorea: </string>
+    <string name="error_invalid_email">E-posta helbide ez baliogarria</string>
+    <string name="error_passwords_not_match">Pasahitzak ez datoz bat</string>
+    <string name="error_password_requirements">Pasahitzak gutxienez 8 karaktere izan behar ditu, batez beste, letra larri bat, letra xehe bat eta zenbaki bat.</string>
+    <string name="error_processing_departments">Errorea departamentuak prozesatzerakoan</string>
+    <string name="error_loading_departments">Errorea departamentuak kargatzerakoan</string>
+    <string name="registration_successful">Erregistroa arrakastatsua</string>
 
     <!-- Egunak -->
     <string name="lunes">astelehena</string>

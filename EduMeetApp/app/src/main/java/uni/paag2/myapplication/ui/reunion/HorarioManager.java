@@ -63,6 +63,11 @@ public class HorarioManager {
         void onFailure(String error);
     }
 
+    public interface SupabaseCallbackList {
+        void onSuccess(List<Integer> result);
+        void onFailure(String error);
+    }
+
     public void buscarHorarioDisponible(int idReunion, HorarioCallback callback) {
         obtenerReunion(idReunion, new Callback() {
             @Override
@@ -84,52 +89,35 @@ public class HorarioManager {
                         String fecha = reunionData.getString("fecha");
                         String diaOriginal = obtenerDiaSemana(fecha);
 
-                        obtenerParticipantesReunion(idReunion, new Callback() {
+                        // En vez de obtener participantes, obtenemos todas las IDs de profesores
+                        obtenerTodasLasIdsProfesores(new SupabaseCallbackList() {
                             @Override
-                            public void onFailure(Call call, IOException e) {
-                                callback.onFailure("Error al obtener participantes: " + e.getMessage());
+                            public void onSuccess(List<Integer> idsProfesores) {
+                                System.out.println("Profesores para buscar horarios comunes: " + idsProfesores);
+
+                                buscarHorariosComunes(idsProfesores, diaOriginal, new HorarioCallback() {
+                                    @Override
+                                    public void onSuccess(String nuevoHorario) {
+                                        if (nuevoHorario != null) {
+                                            actualizarHoraReunion(idReunion, nuevoHorario, callback);
+                                        } else {
+                                            callback.onFailure("No se encontraron horarios disponibles para todos los profesores");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(String error) {
+                                        callback.onFailure(error);
+                                    }
+                                });
                             }
 
                             @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                if (response.isSuccessful()) {
-                                    try {
-                                        String responseData = response.body().string();
-                                        JSONArray participantesArray = new JSONArray(responseData);
-                                        List<Integer> idsProfesores = new ArrayList<>();
-                                        for (int i = 0; i < participantesArray.length(); i++) {
-                                            JSONObject participante = participantesArray.getJSONObject(i);
-                                            idsProfesores.add(participante.getInt("id_profesor"));
-                                        }
-                                        int idProfesorActual = obtenerIdProfesorActual();
-                                        if (!idsProfesores.contains(idProfesorActual)) {
-                                            idsProfesores.add(idProfesorActual);
-                                        }
-
-                                        buscarHorariosComunes(idsProfesores, diaOriginal, new HorarioCallback() {
-                                            @Override
-                                            public void onSuccess(String nuevoHorario) {
-                                                if (nuevoHorario != null) {
-                                                    actualizarHoraReunion(idReunion, nuevoHorario, callback);
-                                                } else {
-                                                    callback.onFailure("No se encontraron horarios disponibles para todos los participantes");
-                                                }
-                                            }
-
-                                            @Override
-                                            public void onFailure(String error) {
-                                                callback.onFailure(error);
-                                            }
-                                        });
-
-                                    } catch (JSONException e) {
-                                        callback.onFailure("Error al procesar participantes: " + e.getMessage());
-                                    }
-                                } else {
-                                    callback.onFailure("Error al obtener participantes: " + response.code());
-                                }
+                            public void onFailure(String error) {
+                                callback.onFailure("Error al obtener IDs de profesores: " + error);
                             }
                         });
+
                     } catch (JSONException e) {
                         callback.onFailure("Error al procesar datos de la reunión: " + e.getMessage());
                     }
@@ -139,6 +127,45 @@ public class HorarioManager {
             }
         });
     }
+
+    public void obtenerTodasLasIdsProfesores(SupabaseCallbackList callback) {
+        String url = SUPABASE_URL + "/rest/v1/profesor";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", SUPABASE_KEY)
+                .addHeader("Authorization", "Bearer " + SUPABASE_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Error de red al obtener IDs de profesores");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String body = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(body);
+                        List<Integer> idsProfesores = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject profesor = jsonArray.getJSONObject(i);
+                            idsProfesores.add(profesor.getInt("id_profesor"));
+                        }
+                        callback.onSuccess(idsProfesores);
+                    } catch (JSONException e) {
+                        callback.onFailure("Error al parsear JSON: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("Error al consultar profesores: " + response.code());
+                }
+            }
+        });
+    }
+
 
     private void obtenerReunion(int idReunion, Callback callback) {
         String url = SUPABASE_URL + "/rest/v1/reunion?id_reunion=eq." + idReunion;
@@ -165,11 +192,15 @@ public class HorarioManager {
         CountDownLatch latch = new CountDownLatch(idsProfesores.size());
         AtomicReference<String> error = new AtomicReference<>(null);
 
+        System.out.println("Profesores para buscar horarios comunes: " + idsProfesores);
+
         for (Integer idProfesor : idsProfesores) {
             obtenerHorarioProfesor(idProfesor, diaSemana, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    error.set("Error al obtener horario del profesor " + idProfesor + ": " + e.getMessage());
+                    String mensajeError = "Error al obtener horario del profesor " + idProfesor + ": " + e.getMessage();
+                    System.out.println(mensajeError);
+                    error.set(mensajeError);
                     latch.countDown();
                 }
 
@@ -206,15 +237,20 @@ public class HorarioManager {
                                     }
                                     if (!ocupado) {
                                         horariosDisponibles.put(bloque, horariosDisponibles.getOrDefault(bloque, 0) + 1);
+                                        System.out.println("Profesor " + idProfesor + " tiene bloque libre: " + bloque);
                                     }
                                 }
                             }
 
                         } catch (JSONException e) {
-                            error.set("Error al procesar horario del profesor " + idProfesor + ": " + e.getMessage());
+                            String mensajeError = "Error al procesar horario del profesor " + idProfesor + ": " + e.getMessage();
+                            System.out.println(mensajeError);
+                            error.set(mensajeError);
                         }
                     } else {
-                        error.set("Error al obtener horario del profesor " + idProfesor + ": " + response.code());
+                        String mensajeError = "Error al obtener horario del profesor " + idProfesor + ": " + response.code();
+                        System.out.println(mensajeError);
+                        error.set(mensajeError);
                     }
                     latch.countDown();
                 }
@@ -248,6 +284,8 @@ public class HorarioManager {
 
         callback.onSuccess(null);
     }
+
+
 
     private void obtenerHorarioProfesor(int idProfesor, String diaSemana, Callback callback) {
         String url = SUPABASE_URL + "/rest/v1/profesor_asignatura?id_profesor=eq." + idProfesor +

@@ -49,7 +49,7 @@ public class LogInSupa extends BaseActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_fill_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -72,27 +72,28 @@ public class LogInSupa extends BaseActivity {
                             obtenerIdProfesor(email);
 
                             runOnUiThread(() -> {
-                                Toast.makeText(LogInSupa.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LogInSupa.this, getString(R.string.login_successful), Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(LogInSupa.this, MainActivity.class));
                                 finish();
                             });
                         } else {
-                            runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> Toast.makeText(LogInSupa.this, getString(R.string.error_incorrect_password), Toast.LENGTH_SHORT).show());
                         }
                     } else {
-                        runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Usuario no encontrado", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(LogInSupa.this, getString(R.string.error_user_not_found), Toast.LENGTH_SHORT).show());
                     }
                 } catch (JSONException e) {
-                    runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Error al procesar respuesta", Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(LogInSupa.this, getString(R.string.error_processing_response), Toast.LENGTH_SHORT).show());
                 }
             }
 
             @Override
             public void onFailure(String error) {
-                runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Error: " + error, Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(LogInSupa.this, getString(R.string.error_generic) + error, Toast.LENGTH_SHORT).show());
             }
         });
     }
+
 
     private void obtenerIdProfesor(String email) {
         supabaseHelper.obtenerIdProfesorPorEmail(email, LogInSupa.this, new SupabaseHelper.SupabaseCallback() {

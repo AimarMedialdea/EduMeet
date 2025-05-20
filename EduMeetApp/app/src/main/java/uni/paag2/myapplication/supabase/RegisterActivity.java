@@ -82,14 +82,14 @@ public class RegisterActivity extends BaseActivity {
                         dptSpinner.setAdapter(adapter);
 
                     } catch (Exception e) {
-                        Toast.makeText(RegisterActivity.this, "Error procesando departamentos", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegisterActivity.this, getString(R.string.error_processing_departments), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
 
             @Override
             public void onFailure(String error) {
-                runOnUiThread(() -> Toast.makeText(RegisterActivity.this, "Error al cargar departamentos", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> Toast.makeText(RegisterActivity.this, getString(R.string.error_loading_departments), Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -101,22 +101,22 @@ public class RegisterActivity extends BaseActivity {
         String confirmPassword = editTextConfirmPassword.getText().toString().trim();
 
         if (nombre.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            Toast.makeText(this, "Por favor complete todos los campos", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_fill_all_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            Toast.makeText(this, "Correo electrónico no válido", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_invalid_email), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_passwords_not_match), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!isPasswordValid(password)) {
-            Toast.makeText(this, "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.error_password_requirements), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -130,7 +130,7 @@ public class RegisterActivity extends BaseActivity {
             @Override
             public void onSuccess(String response) {
                 runOnUiThread(() -> {
-                    Toast.makeText(RegisterActivity.this, "Registro exitoso", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, getString(R.string.registration_successful), Toast.LENGTH_SHORT).show();
                     finish();
                 });
             }
@@ -141,6 +141,7 @@ public class RegisterActivity extends BaseActivity {
             }
         });
     }
+
     private boolean isPasswordValid(String password) {
         String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
         return password.matches(passwordPattern);

@@ -80,6 +80,19 @@
     <string name="error_id_profesor">Error: ID del profesor inválido</string>
     <string name="asignatura">Asignatura</string>
     <string name="error_cargar_horario">Error al cargar el horario</string>
+    <string name="usuario">Nombre de usuario</string>
+    <string name="error_fill_all_fields">Por favor completa todos los campos</string>
+    <string name="login_successful">Inicio de sesión exitoso</string>
+    <string name="error_incorrect_password">Contraseña incorrecta</string>
+    <string name="error_user_not_found">Usuario no encontrado</string>
+    <string name="error_processing_response">Error al procesar respuesta</string>
+    <string name="error_generic">Error: </string>
+    <string name="error_invalid_email">Correo electrónico no válido</string>
+    <string name="error_passwords_not_match">Las contraseñas no coinciden</string>
+    <string name="error_password_requirements">La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.</string>
+    <string name="error_processing_departments">Error procesando departamentos</string>
+    <string name="error_loading_departments">Error al cargar departamentos</string>
+    <string name="registration_successful">Registro exitoso</string>
 
     <!-- Dias -->
     <string name="lunes">lunes</string>

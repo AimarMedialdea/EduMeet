@@ -29,6 +29,12 @@ public class SupabaseHelper {
         this.client = new OkHttpClient();
     }
 
+    public interface SupabaseCallbackList {
+        void onSuccess(List<Integer> idsProfesores);
+        void onFailure(String error);
+    }
+
+
     public interface SupabaseCallback {
         void onSuccess(String response);
         void onFailure(String error);
@@ -1039,6 +1045,46 @@ public class SupabaseHelper {
             }
         });
     }
+    public void obtenerTodasLasIdsProfesores(SupabaseCallbackList callback) {
+        OkHttpClient client = new OkHttpClient();
+        String url = BASE_URL + "/rest/v1/profesor?select=id_profesor";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Error de red al obtener los IDs de profesores");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String body = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(body);
+                        List<Integer> idsProfesores = new ArrayList<>();
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject profesor = jsonArray.getJSONObject(i);
+                            int idProfesor = profesor.getInt("id_profesor");
+                            idsProfesores.add(idProfesor);
+                        }
+                        callback.onSuccess(idsProfesores);
+                    } catch (JSONException e) {
+                        callback.onFailure("Error al parsear JSON: " + e.getMessage());
+                    }
+                } else {
+                    callback.onFailure("Error al consultar profesores: " + response.code());
+                }
+            }
+        });
+    }
+
 
 
 }
