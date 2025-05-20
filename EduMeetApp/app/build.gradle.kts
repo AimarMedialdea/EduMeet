@@ -53,6 +53,6 @@ dependencies {
     implementation ("org.json:json:20210307")
     implementation ("androidx.cardview:cardview:1.0.0")
     implementation ("org.mindrot:jbcrypt:0.4")
-
+    implementation ("at.favre.lib:bcrypt:0.9.0")
 
 }

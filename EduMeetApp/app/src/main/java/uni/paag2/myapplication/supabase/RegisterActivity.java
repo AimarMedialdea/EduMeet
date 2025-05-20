@@ -6,11 +6,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-import androidx.appcompat.app.AppCompatActivity;
+import at.favre.lib.crypto.bcrypt.BCrypt;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,13 +105,23 @@ public class RegisterActivity extends BaseActivity {
             return;
         }
 
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this, "Correo electrónico no válido", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (!password.equals(confirmPassword)) {
             Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Hashear la contraseña
-        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        if (!isPasswordValid(password)) {
+            Toast.makeText(this, "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Encriptar la contraseña con BCrypt
+        String hashedPassword = BCrypt.withDefaults().hashToString(12, password.toCharArray());
 
         Departamento dptoSeleccionado = (Departamento) dptSpinner.getSelectedItem();
         int idDepartamento = dptoSeleccionado.id;
@@ -132,4 +141,9 @@ public class RegisterActivity extends BaseActivity {
             }
         });
     }
+    private boolean isPasswordValid(String password) {
+        String passwordPattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
+        return password.matches(passwordPattern);
+    }
+
 }
