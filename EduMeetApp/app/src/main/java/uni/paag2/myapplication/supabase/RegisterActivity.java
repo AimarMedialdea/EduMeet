@@ -7,8 +7,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,10 +111,13 @@ public class RegisterActivity extends BaseActivity {
             return;
         }
 
+        // Hashear la contraseña
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
         Departamento dptoSeleccionado = (Departamento) dptSpinner.getSelectedItem();
         int idDepartamento = dptoSeleccionado.id;
 
-        supabaseHelper.registerUser(nombre, email, password, idDepartamento, new SupabaseHelper.SupabaseCallback() {
+        supabaseHelper.registerUser(nombre, email, hashedPassword, idDepartamento, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
                 runOnUiThread(() -> {

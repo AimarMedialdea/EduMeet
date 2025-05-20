@@ -350,6 +350,36 @@ public class SupabaseHelper {
         });
     }
 
+    public void obtenerUsuarioPorEmail(String email, SupabaseCallback callback) {
+        String url = BASE_URL + "profesor?email=eq." + email;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .addHeader("apikey", API_KEY)
+                .addHeader("Authorization", "Bearer " + API_KEY)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onFailure("Error al conectar con Supabase: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    callback.onSuccess(responseBody);
+                } else {
+                    callback.onFailure("Error al consultar usuario: " + response.code() + " " + response.message());
+                }
+            }
+        });
+    }
+
+
 
     public void obtenerDepartamentos(SupabaseCallback callback) {
         String url = BASE_URL + "departamento?select=id_departamento,nombre";

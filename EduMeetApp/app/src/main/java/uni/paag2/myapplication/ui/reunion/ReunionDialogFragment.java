@@ -87,7 +87,6 @@ public class ReunionDialogFragment extends DialogFragment {
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     salaSpinner.setAdapter(adapter);
 
-                    // 🔄 Solo aquí puedes obtener la posición
                     if (getArguments() != null) {
                         String sala = getArguments().getString("sala");
                         int pos = adapter.getPosition(sala);

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import uni.paag2.myapplication.BaseActivity;
 import uni.paag2.myapplication.MainActivity;
@@ -48,46 +49,47 @@ public class LogInSupa extends BaseActivity {
         String password = editTextPassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, getString(R.string.login_campos_vacios), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Por favor completa todos los campos", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        supabaseHelper.loginUser(email, password, LogInSupa.this, new SupabaseHelper.SupabaseCallback() {
+        supabaseHelper.obtenerUsuarioPorEmail(email, new SupabaseHelper.SupabaseCallback() {
             @Override
             public void onSuccess(String response) {
-                SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("user_email", email);
-
                 try {
-                    JSONObject jsonResponse = new JSONObject(response);
-                    if (jsonResponse.has("access_token")) {
-                        String accessToken = jsonResponse.getString("access_token");
-                        editor.putString("access_token", accessToken);
-                        Log.d("LOGIN", "Access token guardado.");
+                    JSONArray jsonArray = new JSONArray(response);
+                    if (jsonArray.length() > 0) {
+                        JSONObject userObject = jsonArray.getJSONObject(0);
+                        String storedHash = userObject.getString("contrasena");
+
+                        if (BCrypt.checkpw(password, storedHash)) {
+                            // Contraseña válida
+                            SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("user_email", email);
+                            editor.apply();
+
+                            obtenerIdProfesor(email);
+
+                            runOnUiThread(() -> {
+                                Toast.makeText(LogInSupa.this, "Inicio de sesión exitoso", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(LogInSupa.this, MainActivity.class));
+                                finish();
+                            });
+                        } else {
+                            runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Contraseña incorrecta", Toast.LENGTH_SHORT).show());
+                        }
+                    } else {
+                        runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Usuario no encontrado", Toast.LENGTH_SHORT).show());
                     }
                 } catch (JSONException e) {
-                    Log.d("LOGIN", "Respuesta no es JSON. Login aparentemente exitoso: " + response);
+                    runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Error al procesar respuesta", Toast.LENGTH_SHORT).show());
                 }
-
-                editor.apply();
-                Log.d("LOGIN", "Email guardado en SharedPreferences: " + email);
-
-                obtenerIdProfesor(email);
-
-                runOnUiThread(() -> {
-                    Toast.makeText(LogInSupa.this, getString(R.string.login_exito), Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LogInSupa.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                });
             }
 
             @Override
             public void onFailure(String error) {
-                runOnUiThread(() ->
-                        Toast.makeText(LogInSupa.this, getString(R.string.login_error_generico, error), Toast.LENGTH_SHORT).show()
-                );
+                runOnUiThread(() -> Toast.makeText(LogInSupa.this, "Error: " + error, Toast.LENGTH_SHORT).show());
             }
         });
     }
@@ -102,7 +104,6 @@ public class LogInSupa extends BaseActivity {
                     SharedPreferences.Editor editor = prefs.edit();
                     editor.putInt("id_profesor", id);
                     editor.apply();
-                    Log.d("LOGIN", "ID profesor guardado en SharedPreferences: " + idProfesor);
                 } catch (NumberFormatException e) {
                     Log.e("LOGIN", "Error al convertir id_profesor a entero: " + idProfesor);
                 }
