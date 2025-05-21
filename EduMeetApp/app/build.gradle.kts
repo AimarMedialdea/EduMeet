@@ -54,5 +54,5 @@ dependencies {
     implementation ("androidx.cardview:cardview:1.0.0")
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("at.favre.lib:bcrypt:0.9.0")
-
+    implementation ("com.google.android.material:material:1.12.0")
 }

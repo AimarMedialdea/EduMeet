@@ -39,6 +39,8 @@
         android:backgroundTint="#7655A3"
         android:text="@string/guardarhorario" />
 
+
+
     <TextView
         android:id="@+id/titulo_horario"
         android:layout_width="match_parent"
@@ -51,7 +53,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/lista_horario"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="396dp"
         android:layout_weight="1" />
 
 </LinearLayout>
