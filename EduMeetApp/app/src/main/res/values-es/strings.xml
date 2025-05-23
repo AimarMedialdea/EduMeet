@@ -93,6 +93,10 @@
     <string name="error_processing_departments">Error procesando departamentos</string>
     <string name="error_loading_departments">Error al cargar departamentos</string>
     <string name="registration_successful">Registro exitoso</string>
+    <string name="reuniones_creadas">Reuniones Creadas</string>
+    <string name="reuniones_unidas">Reuniones Unidas</string>
+    <string name="cargando_estado">Cargando</string>
+
 
     <!-- Dias -->
     <string name="lunes">lunes</string>

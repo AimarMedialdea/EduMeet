@@ -93,6 +93,10 @@
     <string name="error_processing_departments">Errorea departamentuak prozesatzerakoan</string>
     <string name="error_loading_departments">Errorea departamentuak kargatzerakoan</string>
     <string name="registration_successful">Erregistroa arrakastatsua</string>
+    <string name="reuniones_creadas">Sortutako Bilerak</string>
+    <string name="reuniones_unidas">Sartu Zaren Bilerak</string>
+    <string name="cargando_estado">kargatzen</string>
+
 
     <!-- Egunak -->
     <string name="lunes">astelehena</string>

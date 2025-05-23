@@ -5,18 +5,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
 
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -45,29 +42,20 @@ public class MainActivity extends BaseActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        setSupportActionBar(binding.appBarMain.toolbar);
+        // ✅ Ya no uses appBarMain
+        setSupportActionBar(binding.toolbar);
 
-        // Verificar las SharedPreferences para depuración
         verificarSharedPreferences();
 
-        // Configuración del FAB
-        FloatingActionButton fab = binding.appBarMain.fab;
+        FloatingActionButton fab = binding.fab;
 
-        DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
+        BottomNavigationView bottomNav = binding.bottomNav;
 
-        // Obtener la vista del header del sidebar
-        View headerView = navigationView.getHeaderView(0);
-        TextView nombreTextView = headerView.findViewById(R.id.nombreU);
-        TextView emailTextView = headerView.findViewById(R.id.emailU);
-
-        // Obtener el email del profesor desde SharedPreferences
+        // Obtener email del profesor desde SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         String email = sharedPreferences.getString("user_email", "");
 
         if (!email.isEmpty()) {
-            nombreTextView.setText("Cargando...");
-            emailTextView.setText(email);
 
             SupabaseHelper supabaseHelper = new SupabaseHelper();
             supabaseHelper.obtenerDatosProfesorPorEmail(email, new SupabaseHelper.SupabaseCallback() {
@@ -83,34 +71,33 @@ public class MainActivity extends BaseActivity {
                                 editor.putInt("id_profesor", profesor.getInt("id_profesor"));
                                 editor.apply();
                             }
-                            runOnUiThread(() -> nombreTextView.setText(nombre));
-                        } else {
-                            runOnUiThread(() -> nombreTextView.setText("Usuario"));
+                            Log.d("LOGIN", "Nombre: " + nombre);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        runOnUiThread(() -> nombreTextView.setText("Error"));
                     }
                 }
 
                 @Override
                 public void onFailure(String errorMessage) {
-                    runOnUiThread(() -> nombreTextView.setText("Error"));
+                    Log.e("LOGIN", "Error obteniendo datos: " + errorMessage);
                 }
             });
         } else {
-            nombreTextView.setText("Invitado");
-            emailTextView.setText("No hay sesión iniciada");
             Toast.makeText(this, "No se encontró información de sesión", Toast.LENGTH_LONG).show();
         }
 
-        // Configurar Navigation Component
+        // Configurar Navigation Component con BottomNavigationView
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home, R.id.nav_reunion, R.id.nav_horario)
-                .setOpenableLayout(drawer)
                 .build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
 
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(bottomNav, navController);
+
+        // FAB aparece solo en nav_reunion
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             if (destination.getId() == R.id.nav_reunion) {
                 fab.show();
@@ -122,15 +109,12 @@ public class MainActivity extends BaseActivity {
                 fab.hide();
             }
         });
-
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        recreate(); // Recrear la actividad para aplicar cambios de idioma
+        recreate();
     }
 
     @Override
@@ -143,8 +127,7 @@ public class MainActivity extends BaseActivity {
         if (overrideConfiguration != null) {
             SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
             String lang = prefs.getString("app_lang", "eu");
-            Locale locale = new Locale(lang);
-            overrideConfiguration.setLocale(locale);
+            overrideConfiguration.setLocale(new Locale(lang));
         }
         super.applyOverrideConfiguration(overrideConfiguration);
     }
@@ -174,7 +157,6 @@ public class MainActivity extends BaseActivity {
         return true;
     }
 
-    // Redirige al Settings.java cuando se selecciona el ítem del menú
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_settings) {

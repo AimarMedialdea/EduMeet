@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
-        android:id="@+id/menu_mis_reuniones"
-        android:title="@string/menu_reuniones"
-        android:icon="@drawable/ic_mis_reuniones"/>
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/menu_home" />
+
     <item
-        android:id="@+id/menu_reuniones_unidas"
-        android:title="@string/misReuniones"
-        android:icon="@drawable/ic_reuniones_unidas"/>
+        android:id="@+id/nav_reunion"
+        android:icon="@drawable/ic_reunion"
+        android:title="@string/menu_reuniones" />
+
+    <item
+        android:id="@+id/nav_horario"
+        android:icon="@drawable/ic_horario"
+        android:title="@string/menu_horario" />
+
 </menu>

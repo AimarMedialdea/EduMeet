@@ -71,9 +71,12 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
             tvFecha.setText(context.getString(R.string.fecha) + reunion.getFecha());
             tvHora.setText(context.getString(R.string.hora) + reunion.getHoraInicio());
             tvSala.setText(context.getString(R.string.sala) + reunion.getSala());
+            tvParticipantes.setText(context.getString(R.string.participantes) + " ...");
+
+            btnUnirse.setEnabled(false);
+            btnUnirse.setText(context.getString(R.string.cargando_estado));
 
             horarioManager = new HorarioManager(context, supabaseUrl, supabaseKey);
-
             int idProfesor = obtenerIdProfesorActual();
 
             verificarParticipacion(idProfesor, reunion.getIdReunion(), client, supabaseUrl, supabaseKey);
@@ -87,6 +90,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                 }
             });
         }
+
 
         private int obtenerIdProfesorActual() {
             SharedPreferences prefs = itemView.getContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
@@ -119,6 +123,7 @@ public class ReunionCardAdapter extends RecyclerView.Adapter<ReunionCardAdapter.
                             itemView.post(() -> {
                                 estaUnido = participando;
                                 btnUnirse.setText(itemView.getContext().getString(participando ? R.string.salir : R.string.unirse));
+                                btnUnirse.setEnabled(true); // Rehabilita el botón cuando ya sabemos el estado
                             });
                         } catch (Exception e) {
                             e.printStackTrace();

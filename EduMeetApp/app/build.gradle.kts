@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.mediation.test.suite)
+    implementation(libs.viewpager2)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -55,4 +56,5 @@ dependencies {
     implementation ("org.mindrot:jbcrypt:0.4")
     implementation ("at.favre.lib:bcrypt:0.9.0")
     implementation ("com.google.android.material:material:1.12.0")
+    implementation ("me.relex:circleindicator:2.1.6")
 }

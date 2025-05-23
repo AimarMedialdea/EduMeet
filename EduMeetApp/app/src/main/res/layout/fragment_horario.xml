@@ -54,6 +54,7 @@
         android:id="@+id/lista_horario"
         android:layout_width="match_parent"
         android:layout_height="396dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:layout_marginBottom="50dp" />
 
 </LinearLayout>
